@@ -1,9 +1,10 @@
-package com.aerospike.controller;
+package com.aerospikeworkshop.controller;
 
-import com.aerospike.service.DataLoadingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.aerospikeworkshop.service.DataLoadingService;
 
 import java.io.IOException;
 import java.nio.file.Files;

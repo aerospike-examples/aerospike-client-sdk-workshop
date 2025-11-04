@@ -1,4 +1,4 @@
-package com.aerospike.config;
+package com.aerospikeworkshop.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;

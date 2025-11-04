@@ -28,6 +28,15 @@ To run locally:
     1. Place the contents of the `/images/` directory in the `data/images/` directory.
     2. Place the contents of the `/styles/` directory in the `data/styles/` directory.
 
+2. Obtain the new [Fluent Aerospike client library](https://github.com/aerospike-community/aerospike-fluent-client-java)
+    Clone this repository to your local machine:
+    ```bash
+    git clone https://github.com/aerospike-community/aerospike-fluent-client-java
+    cd aerospike-fluent-client-java
+    mvn clean install
+    ```
+
+
 2. Building the Java application
     First, the `external_jars` must be installed into the local Maven
     ```bash

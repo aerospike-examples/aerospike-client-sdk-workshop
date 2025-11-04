@@ -1,4 +1,4 @@
-package com.aerospike.service;
+package com.aerospikeworkshop.service;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
 
-import com.aerospike.model.Product;
+import com.aerospikeworkshop.model.Product;
 
 /**
  * Service to load product data from JSON files into Aerospike

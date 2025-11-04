@@ -1,4 +1,4 @@
-package com.aerospike.service;
+package com.aerospikeworkshop.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,10 +41,10 @@ import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
-import com.aerospike.config.ClientConfiguration;
-import com.aerospike.model.Cart;
-import com.aerospike.model.CartItem;
-import com.aerospike.model.Product;
+import com.aerospikeworkshop.config.ClientConfiguration;
+import com.aerospikeworkshop.model.Cart;
+import com.aerospikeworkshop.model.CartItem;
+import com.aerospikeworkshop.model.Product;
 
 import jakarta.annotation.PreDestroy;
 
@@ -76,22 +76,18 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
     }
 
     /**
-     * Cleanup method called when the service is destroyed
-     * Properly closes the AerospikeClient connection
+     * Store a product record in Aerospike
+     * 
+     * @param product Product data map
+     * @param productId Product identifier
      */
-    @PreDestroy
-    public void cleanup() {
-        if (aerospikeClient != null) {
-            aerospikeClient.close();
-        }
+    public void storeProduct(Product product) {
+        Key key = new Key(NAMESPACE, PRODUCT_SET, product.getId());
+        WritePolicy writePolicy = aerospikeClient.copyWritePolicyDefault();
+        writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
+        aerospikeClient.put(writePolicy, key, getBins(Product.toMap(product)));
     }
 
-    public void clearAllData() {
-        aerospikeClient.truncate(null, NAMESPACE, PRODUCT_SET, null);
-        aerospikeClient.truncate(null, NAMESPACE, CARTS_SET, null);
-        aerospikeClient.delete(null, new Key(NAMESPACE, CATEGORY_SET, CATEGORY_KEY));
-    }
-    
     /**
      * Key-Value lookup of a specified product
      * Gets the product record and returns the record bins
@@ -108,6 +104,23 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
         return Optional.ofNullable(Product.fromMap(record.bins));
     }
 
+    /**
+     * Cleanup method called when the service is destroyed
+     * Properly closes the AerospikeClient connection
+     */
+    @PreDestroy
+    public void cleanup() {
+        if (aerospikeClient != null) {
+            aerospikeClient.close();
+        }
+    }
+
+    public void clearAllData() {
+        aerospikeClient.truncate(null, NAMESPACE, PRODUCT_SET, null);
+        aerospikeClient.truncate(null, NAMESPACE, CARTS_SET, null);
+        aerospikeClient.delete(null, new Key(NAMESPACE, CATEGORY_SET, CATEGORY_KEY));
+    }
+    
     /**
      * Secondary index query on a specified index and filter
      * Gets the first N records of the secondary index query
@@ -257,19 +270,6 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
             // Index already exists or other error - fail gracefully
             System.out.println("Index " + indexName + " already exists or failed to create: " + e.getMessage());
         }
-    }
-
-    /**
-     * Store a product record in Aerospike
-     * 
-     * @param product Product data map
-     * @param productId Product identifier
-     */
-    public void storeProduct(Product product) {
-        Key key = new Key(NAMESPACE, PRODUCT_SET, product.getId());
-        WritePolicy writePolicy = aerospikeClient.copyWritePolicyDefault();
-        writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-        aerospikeClient.put(writePolicy, key, getBins(Product.toMap(product)));
     }
 
     /**

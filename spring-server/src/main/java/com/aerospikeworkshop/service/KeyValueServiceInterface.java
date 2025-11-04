@@ -1,11 +1,11 @@
-package com.aerospike.service;
+package com.aerospikeworkshop.service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.aerospike.model.Cart;
-import com.aerospike.model.Product;
+import com.aerospikeworkshop.model.Cart;
+import com.aerospikeworkshop.model.Product;
 
 /**
  * Interface for KeyValue operations

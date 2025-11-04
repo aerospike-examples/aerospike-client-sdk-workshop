@@ -1,4 +1,4 @@
-package com.aerospike.controller;
+package com.aerospikeworkshop.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.aerospike.model.Product;
-import com.aerospike.service.KeyValueServiceInterface;
+import com.aerospikeworkshop.model.Product;
+import com.aerospikeworkshop.service.KeyValueServiceInterface;
 
 /**
  * REST controller for the retail demo API - Key-Value operations only

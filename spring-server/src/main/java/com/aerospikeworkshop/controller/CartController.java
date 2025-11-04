@@ -1,4 +1,4 @@
-package com.aerospike.controller;
+package com.aerospikeworkshop.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.aerospike.model.Cart;
-import com.aerospike.service.KeyValueServiceInterface;
+import com.aerospikeworkshop.model.Cart;
+import com.aerospikeworkshop.service.KeyValueServiceInterface;
 
 @RestController
 @RequestMapping("/rest/v1/cart")

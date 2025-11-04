@@ -1,4 +1,4 @@
-package com.aerospike.model;
+package com.aerospikeworkshop.model;
 
 import java.util.Map;
 

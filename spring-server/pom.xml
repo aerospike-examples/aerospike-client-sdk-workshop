@@ -8,22 +8,22 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.5.3</version>
         <relativePath/>
     </parent>
 
     <groupId>com.aerospike</groupId>
-    <artifactId>retail-demo-spring</artifactId>
+    <artifactId>aerospike-fluent-client-workshop</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Retail Demo Spring Boot Server</name>
+    <name>Retail Demo Showing off the Aerospike Fluent API</name>
     <description>Spring Boot server for the Aerospike retail demo - Key-Value only</description>
 
     <properties>
         <java.version>21</java.version>
         <aerospike.version>9.1.0</aerospike.version>
-        <aerospike-fluent.version>0.8.0</aerospike-fluent.version>
+        <aerospike-fluent.version>0.1.0</aerospike-fluent.version>
     </properties>
 
     <dependencies>
@@ -48,10 +48,8 @@
         <!-- Fluent Aerospike Java Client -->
         <dependency>
             <groupId>com.aerospike</groupId>
-            <artifactId>aerospike-fluent-client</artifactId>
-            <version>${aerospike-fluent.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../external_jars/aerospike-fluent-client-0.8.0-jar-with-dependencies.jar</systemPath>
+            <artifactId>aerospike-fluent-client-java</artifactId>
+            <version>0.1.0</version>
         </dependency>
 
         <!-- JSON Processing -->
@@ -73,7 +71,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
                 <configuration>
                     <source>21</source>
                     <target>21</target>

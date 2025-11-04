@@ -1,4 +1,4 @@
-package com.aerospike.service;
+package com.aerospikeworkshop.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.aerospike.config;
+package com.aerospikeworkshop.config;
 
 /**
  * Configuration class for Aerospike client connection details
