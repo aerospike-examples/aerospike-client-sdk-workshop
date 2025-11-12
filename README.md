@@ -1,7 +1,15 @@
 # Aerospike Retail Demo
 
-A demo retail website powered by Aerospike, showcasing Key-Value operations with a modern Spring Boot + React architecture.
+A demo retail website powered by Aerospike, showcasing Key-Value operations with a modern Spring Boot + React architecture. This will use the newer, fluent API and is set up as a challenge.
 
+## The challenge!
+We would love to get feedback on the fluent API! A guide to getting started with the API can be [found here](guide-to-fluent-apis.md). This workshop contains a fully-working retail / shopping cart application, with the entire database access encoded in a single file. This file can be found in `com.aerospikeworkshop.service`.
+
+There are actually two files of interest in this package:
+1. `KeyValueServiceOldClient` contains the fully working code in the existing (non-fluent) Aerospike client. 
+2. `KeyValueServiceNewClient` contains the skeleton code to be coded in the new API with big `TODO:` comments detailing what needs to be done.
+
+Any comments or questions, please leave github comments associated with either this repositoriy or the [aerospike-fluent-client-java](https://github.com/aerospike-community/aerospike-fluent-client-java).
 ## Project Structure
 
 ```
