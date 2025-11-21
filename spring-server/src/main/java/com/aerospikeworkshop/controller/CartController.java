@@ -50,9 +50,10 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> addToCart(
             @PathVariable String userId,
             @RequestParam String productId,
-            @RequestParam(defaultValue = "1") int quantity) {
+            @RequestParam(defaultValue = "1") int quantity,
+            @RequestParam(required = false) String size) {
         try {
-            Cart cart = keyValueService.addToCart(userId, productId, quantity);
+            Cart cart = keyValueService.addToCart(userId, productId, quantity, size);
             
             Map<String, Object> response = new HashMap<>();
             response.put("items", cart.getItems());
@@ -74,9 +75,10 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> updateCartItem(
             @PathVariable String userId,
             @RequestParam String productId,
-            @RequestParam int quantity) {
+            @RequestParam int quantity,
+            @RequestParam(required = false) String size) {
         try {
-            Cart cart = keyValueService.updateCartItem(userId, productId, quantity);
+            Cart cart = keyValueService.updateCartItem(userId, productId, quantity, size);
             
             Map<String, Object> response = new HashMap<>();
             response.put("items", cart.getItems());
@@ -97,9 +99,10 @@ public class CartController {
     @DeleteMapping("/{userId}/remove")
     public ResponseEntity<Map<String, Object>> removeFromCart(
             @PathVariable String userId,
-            @RequestParam String productId) {
+            @RequestParam String productId,
+            @RequestParam(required = false) String size) {
         try {
-            Cart cart = keyValueService.removeFromCart(userId, productId);
+            Cart cart = keyValueService.removeFromCart(userId, productId, size);
             
             Map<String, Object> response = new HashMap<>();
             response.put("items", cart.getItems());

@@ -21,23 +21,23 @@ const Cart = () => {
         return `$${dollars.toFixed(2)}`;
     };
 
-    const handleQuantityChange = (productId, newQuantity) => {
-        const item = items.find(item => item.productId === productId);
+    const handleQuantityChange = (productId, size, newQuantity) => {
+        const item = items.find(item => item.productId === productId && (item.size || null) === (size || null));
         const itemName = item ? item.name : 'Item';
         
         if (newQuantity <= 0) {
-            removeFromCart(productId);
+            removeFromCart(productId, size);
             showInfo(`${itemName} removed from cart`, 3000);
         } else {
-            updateQuantity(productId, newQuantity);
+            updateQuantity(productId, size, newQuantity);
             showInfo(`${itemName} quantity updated to ${newQuantity}`, 3000);
         }
     };
 
-    const handleRemoveItem = (productId) => {
-        const item = items.find(item => item.productId === productId);
+    const handleRemoveItem = (productId, size) => {
+        const item = items.find(item => item.productId === productId && (item.size || null) === (size || null));
         const itemName = item ? item.name : 'Item';
-        removeFromCart(productId);
+        removeFromCart(productId, size);
         showInfo(`${itemName} removed from cart`, 3000);
     };
 
@@ -47,6 +47,16 @@ const Cart = () => {
     };
 
     const totalAmount = getCartTotal();
+    
+    // Sort items by productId, then by size for consistent ordering
+    const sortedItems = [...items].sort((a, b) => {
+        if (a.productId !== b.productId) {
+            return a.productId.localeCompare(b.productId);
+        }
+        const sizeA = a.size || '';
+        const sizeB = b.size || '';
+        return sizeA.localeCompare(sizeB);
+    });
 
     if (items.length === 0) {
         return (
@@ -65,7 +75,7 @@ const Cart = () => {
     return (
         <div className={styles.cartContainer}>
             <div className={styles.cartHeader}>
-                <h1>Your Cart ({items.length} items)</h1>
+                <h1>Your Cart ({sortedItems.length} items)</h1>
                 <button 
                     className={styles.clearCartButton}
                     onClick={handleClearCart}
@@ -76,8 +86,8 @@ const Cart = () => {
 
             <div className={styles.cartContent}>
                 <div className={styles.cartItems}>
-                    {items.map((item) => (
-                        <div key={item.productId} className={styles.cartItem}>
+                    {sortedItems.map((item) => (
+                        <div key={`${item.productId}-${item.size || ''}`} className={styles.cartItem}>
                             <div className={styles.itemImage}>
                                 <img 
                                     src={item.image ? fixImgUrl(item.image) : '/placeholder.jpg'} 
@@ -87,6 +97,7 @@ const Cart = () => {
                             
                             <div className={styles.itemDetails}>
                                 <h3>{item.name}</h3>
+                                {item.size && item.size.trim() && <p className={styles.size}>Size: {item.size}</p>}
                                 <p className={styles.brandName}>{item.brandName}</p>
                                 <p className={styles.price}>{formatPrice(item.price)}</p>
                             </div>
@@ -95,14 +106,14 @@ const Cart = () => {
                                 <div className={styles.quantityControls}>
                                     <button 
                                         className={styles.quantityButton}
-                                        onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
+                                        onClick={() => handleQuantityChange(item.productId, item.size, item.quantity - 1)}
                                     >
                                         -
                                     </button>
                                     <span className={styles.quantity}>{item.quantity}</span>
                                     <button 
                                         className={styles.quantityButton}
-                                        onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
+                                        onClick={() => handleQuantityChange(item.productId, item.size, item.quantity + 1)}
                                     >
                                         +
                                     </button>
@@ -110,7 +121,7 @@ const Cart = () => {
                                 
                                 <button 
                                     className={styles.removeButton}
-                                    onClick={() => handleRemoveItem(item.productId)}
+                                    onClick={() => handleRemoveItem(item.productId, item.size)}
                                 >
                                     Remove
                                 </button>

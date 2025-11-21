@@ -25,14 +25,23 @@ const Product = () => {
     const { product, related, also_bought } = useLoaderData();
     const { addToCart } = useCart();
     const { showSuccess, showError } = useToast();
+    const [selectedSize, setSelectedSize] = React.useState(() => {
+        // Initialize with first option value if available
+        const initialSize = product?.options && product.options.length > 0 ? product.options[0].value : null;
+        return initialSize;
+    });
 
     const handleAddToCart = async (productId, quantity) => {
-        const result = await addToCart(productId, quantity);
+        const result = await addToCart(productId, quantity, selectedSize);
         if (result.success) {
             showSuccess(`${product.name} added to cart!`, 3000);
         } else {
             showError(`Failed to add item to cart: ${result.error}`, 3000);
         }
+    };
+
+    const handleSizeChange = (size) => {
+        setSelectedSize(size);
     };
 
     return (
@@ -58,8 +67,8 @@ const Product = () => {
                             productId={product?.id}
                             onAddToCart={handleAddToCart}
                         />
-                        {product.options && product.options.length > 1 &&
-                        <SizeOptions options={product.options} />}
+                        {product.options && product.options.length > 0 &&
+                        <SizeOptions options={product.options} onSizeChange={handleSizeChange} />}
                     </div>
                 </div>
                 {

@@ -145,6 +145,7 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
         binNames.add("name");
         binNames.add("images");
         binNames.add("brandName");
+        binNames.add("price");
         statement.setBinNames(binNames.toArray(new String[0]));
         
         QueryPolicy queryPolicy = aerospikeClient.copyQueryPolicyDefault();
@@ -336,6 +337,7 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
         binNames.add("name");
         binNames.add("images");
         binNames.add("brandName");
+        binNames.add("price");
         statement.setBinNames(binNames.toArray(new String[0]));
         
         QueryPolicy queryPolicy = aerospikeClient.copyQueryPolicyDefault();
@@ -382,12 +384,15 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
             return Cart.fromMap(record.bins);
             
         } catch (Exception e) {
-            System.err.println("Error getting cart: " + e.getMessage());
             return new Cart();
         }
     }
 
     public Cart addToCart(String userId, String productId, int quantity) {
+        return addToCart(userId, productId, quantity, null);
+    }
+    
+    public Cart addToCart(String userId, String productId, int quantity, String size) {
         try {
             // Get product details first
             Optional<Product> productOptional = getProduct(productId);
@@ -400,6 +405,9 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
             
             // Get product image
             String image = extractProductImage(product);
+            // Create composite key for the item
+            String itemKey = makeItemKey(productId, size);
+            
             while (true) {
                 // Check if item already exists in cart
                 Record existingRecord = aerospikeClient.get(null, key);
@@ -415,38 +423,40 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
                     writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
                     
                     cart = Cart.fromMap(existingRecord.bins);
-                    thisItem = cart.findItem(productId)
+                    Optional<CartItem> foundItem = cart.findItem(productId, size);
+                    thisItem = foundItem
                         .map(item -> {
                             item.setQuantity(item.getQuantity() + quantity);
                             existing.set(true);
                             return item;
                         })
                         .orElseGet(() -> {
-                            return new CartItem(userId, totalQuantity, image, product);
+                            return new CartItem(userId, totalQuantity, image, product, size);
                         });
                 }
                 else {
                     writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-                    thisItem = new CartItem(userId, totalQuantity, image, product);
+                    thisItem = new CartItem(userId, totalQuantity, image, product, size);
                 }
                 
-                MapPolicy mapPolicy = new MapPolicy(MapOrder.KEY_ORDERED, MapWriteFlags.DEFAULT);
+                // Like Python, always write the entire cart map to ensure consistency
+                if (cart == null) {
+                    cart = new Cart();
+                }
+                if (!existing.get()) {
+                    cart.add(thisItem);
+                }
+                
+                // Write entire cart map like Python does (line 269 in Python)
+                Map<String, Value> cartMap = Cart.toMap(cart);
                 try {
-                    if (existing.get()) {
-                        aerospikeClient.operate(writePolicy, key, 
-                                MapOperation.increment(mapPolicy, ITEMS_BIN, Value.get("quantity"), 
-                                        Value.get(quantity), CTX.mapKey(Value.get(productId))));
+                    // Write the entire cart as bins (like Python's put(bins))
+                    Bin[] bins = new Bin[cartMap.size()];
+                    int i = 0;
+                    for (Map.Entry<String, Value> entry : cartMap.entrySet()) {
+                        bins[i++] = new Bin(entry.getKey(), entry.getValue());
                     }
-                    else {
-                        if (cart == null) {
-                            cart = new Cart();
-                        }
-                        cart.add(thisItem);
-                        aerospikeClient.operate(writePolicy, key,
-                                MapOperation.put(mapPolicy, ITEMS_BIN, 
-                                        Value.get(productId), Value.get(CartItem.toMap(thisItem))));
-                        
-                    }
+                    aerospikeClient.put(writePolicy, key, bins);
                     break;
                 }
                 catch (AerospikeException ae) {
@@ -463,8 +473,22 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
             throw new RuntimeException("Failed to add item to cart: " + e.getMessage());
         }
     }
+    
+    /**
+     * Helper method to create composite key for cart items
+     */
+    private static String makeItemKey(String productId, String size) {
+        if (size != null && !size.isEmpty()) {
+            return productId + "-" + size;
+        }
+        return productId;
+    }
 
     public Cart updateCartItem(String userId, String productId, int quantity) {
+        return updateCartItem(userId, productId, quantity, null);
+    }
+    
+    public Cart updateCartItem(String userId, String productId, int quantity, String size) {
         try {
             Key key = new Key(NAMESPACE, CARTS_SET, userId);
             Record record = aerospikeClient.get(null, key);
@@ -474,23 +498,27 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
             }
             
             Cart cart = Cart.fromMap(record.bins);
-
             WritePolicy writePolicy = aerospikeClient.copyWritePolicyDefault();
 
             if (quantity <= 0) {
-                cart.remove(productId);
-                aerospikeClient.operate(writePolicy, key, 
-                        MapOperation.removeByKey(ITEMS_BIN, Value.get(productId), MapReturnType.NONE));
+                cart.remove(productId, size);
             }
             else {
-                MapPolicy mapPolicy = new MapPolicy(MapOrder.KEY_ORDERED, MapWriteFlags.DEFAULT);
-                cart.findItem(productId)
+                cart.findItem(productId, size)
                     .ifPresent(item -> {
                         item.setQuantity(quantity);
-                        aerospikeClient.operate(writePolicy, key,
-                                MapOperation.put(mapPolicy, ITEMS_BIN, Value.get("quantity"), Value.get(quantity), CTX.mapKey(Value.get(productId))));
                     });
             }
+            
+            // Like Python, always write the entire cart map to ensure consistency
+            Map<String, Value> cartMap = Cart.toMap(cart);
+            Bin[] bins = new Bin[cartMap.size()];
+            int i = 0;
+            for (Map.Entry<String, Value> entry : cartMap.entrySet()) {
+                bins[i++] = new Bin(entry.getKey(), entry.getValue());
+            }
+            aerospikeClient.put(writePolicy, key, bins);
+            
             return cart;
         } catch (Exception e) {
             System.err.println("Error updating cart item: " + e.getMessage());
@@ -499,7 +527,11 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
     }
 
     public Cart removeFromCart(String userId, String productId) {
-        return updateCartItem(userId, productId, 0);
+        return removeFromCart(userId, productId, null);
+    }
+    
+    public Cart removeFromCart(String userId, String productId, String size) {
+        return updateCartItem(userId, productId, 0, size);
     }
 
     public Cart clearCart(String userId) {

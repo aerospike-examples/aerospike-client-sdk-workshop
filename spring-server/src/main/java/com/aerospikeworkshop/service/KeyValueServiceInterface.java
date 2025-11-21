@@ -110,26 +110,29 @@ public interface KeyValueServiceInterface {
      * @param userId User identifier
      * @param productId Product identifier
      * @param quantity Quantity to add
+     * @param size Optional size (can be null)
      * @return CartResponse with updated cart
      */
-    Cart addToCart(String userId, String productId, int quantity);
+    Cart addToCart(String userId, String productId, int quantity, String size);
 
     /**
      * Updates the quantity of an item in the cart
      * @param userId User identifier
      * @param productId Product identifier
      * @param quantity New quantity
+     * @param size Optional size (can be null)
      * @return CartResponse with updated cart
      */
-    Cart updateCartItem(String userId, String productId, int quantity);
+    Cart updateCartItem(String userId, String productId, int quantity, String size);
 
     /**
      * Removes an item from the cart
      * @param userId User identifier
      * @param productId Product identifier
+     * @param size Optional size (can be null)
      * @return CartResponse with updated cart
      */
-    Cart removeFromCart(String userId, String productId);
+    Cart removeFromCart(String userId, String productId, String size);
 
     /**
      * Clears all items from the cart

@@ -2,15 +2,22 @@ import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 const CartContext = createContext();
 
+// Helper function to check if two items match (same productId and size)
+const itemsMatch = (item1, item2) => {
+    const size1 = item1.size || null;
+    const size2 = item2.size || null;
+    return item1.productId === item2.productId && size1 === size2;
+};
+
 const cartReducer = (state, action) => {
     switch (action.type) {
         case 'ADD_ITEM':
-            const existingItem = state.items.find(item => item.productId === action.payload.productId);
+            const existingItem = state.items.find(item => itemsMatch(item, action.payload));
             if (existingItem) {
                 return {
                     ...state,
                     items: state.items.map(item =>
-                        item.productId === action.payload.productId
+                        itemsMatch(item, action.payload)
                             ? { ...item, quantity: item.quantity + action.payload.quantity }
                             : item
                     )
@@ -25,14 +32,14 @@ const cartReducer = (state, action) => {
         case 'REMOVE_ITEM':
             return {
                 ...state,
-                items: state.items.filter(item => item.productId !== action.payload.productId)
+                items: state.items.filter(item => !itemsMatch(item, action.payload))
             };
         
         case 'UPDATE_QUANTITY':
             return {
                 ...state,
                 items: state.items.map(item =>
-                    item.productId === action.payload.productId
+                    itemsMatch(item, action.payload)
                         ? { ...item, quantity: action.payload.quantity }
                         : item
                 ).filter(item => item.quantity > 0)
@@ -113,19 +120,23 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cart', JSON.stringify(state));
     }, [state]);
 
-    const addToCart = async (productId, quantity = 1) => {
+    const addToCart = async (productId, quantity = 1, size = null) => {
         try {
             // Try to use backend API first
             const userId = getUserId();
+            const params = new URLSearchParams({
+                productId: productId,
+                quantity: quantity.toString()
+            });
+            if (size) {
+                params.append('size', size);
+            }
             const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: new URLSearchParams({
-                    productId: productId,
-                    quantity: quantity.toString()
-                })
+                body: params
             });
 
             if (response.ok) {
@@ -152,7 +163,8 @@ export const CartProvider = ({ children }) => {
                 price: product.price,
                 image: product.images?.search?.resolutions?.['125X161'] || product.images?.front?.resolutions?.['125X161'],
                 brandName: product.brandName,
-                quantity
+                quantity,
+                size: size || null
             };
 
             dispatch({ type: 'ADD_ITEM', payload: cartItem });
@@ -163,11 +175,15 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    const removeFromCart = async (productId) => {
+    const removeFromCart = async (productId, size = null) => {
         try {
             // Try backend API first
             const userId = getUserId();
-            const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}/remove?productId=${productId}`, {
+            let url = `http://localhost:8080/rest/v1/cart/${userId}/remove?productId=${productId}`;
+            if (size) {
+                url += `&size=${encodeURIComponent(size)}`;
+            }
+            const response = await fetch(url, {
                 method: 'DELETE'
             });
 
@@ -183,22 +199,26 @@ export const CartProvider = ({ children }) => {
         }
 
         // Fallback to local
-        dispatch({ type: 'REMOVE_ITEM', payload: { productId } });
+        dispatch({ type: 'REMOVE_ITEM', payload: { productId, size } });
     };
 
-    const updateQuantity = async (productId, quantity) => {
+    const updateQuantity = async (productId, size, quantity) => {
         try {
             // Try backend API first
             const userId = getUserId();
+            const params = new URLSearchParams({
+                productId: productId,
+                quantity: quantity.toString()
+            });
+            if (size) {
+                params.append('size', size);
+            }
             const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: new URLSearchParams({
-                    productId: productId,
-                    quantity: quantity.toString()
-                })
+                body: params
             });
 
             if (response.ok) {
@@ -213,7 +233,7 @@ export const CartProvider = ({ children }) => {
         }
 
         // Fallback to local
-        dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, quantity } });
+        dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, size, quantity } });
     };
 
     const clearCart = async () => {
