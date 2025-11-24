@@ -13,22 +13,32 @@ public class CartItem {
     private int quantity;
     private String image;
     private String userId;
+    private String size;
     
     public CartItem() {
         super();
     }
     
     public CartItem(String userId, int quantity, String image, Product product) {
+        this(userId, quantity, image, product, null);
+    }
+    
+    public CartItem(String userId, int quantity, String image, Product product, String size) {
         this(product.getId(),
                 product.getName(),
                 product.getPrice(),
                 product.getBrandName(),
                 quantity,
                 image,
-                userId);
+                userId,
+                size);
     }
     
     public CartItem(String productId, String name, long price, String brandName, int quantity, String image, String userId) {
+        this(productId, name, price, brandName, quantity, image, userId, null);
+    }
+    
+    public CartItem(String productId, String name, long price, String brandName, int quantity, String image, String userId, String size) {
         super();
         this.productId = productId;
         this.name = name;
@@ -37,6 +47,7 @@ public class CartItem {
         this.quantity = quantity;
         this.image = image;
         this.userId = userId;
+        this.size = size;
     }
     public String getProductId() {
         return productId;
@@ -59,6 +70,14 @@ public class CartItem {
     public String getUserId() {
         return userId;
     }
+    
+    public String getSize() {
+        return size;
+    }
+    
+    public void setSize(String size) {
+        this.size = size;
+    }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
@@ -67,22 +86,25 @@ public class CartItem {
     @Override
     public String toString() {
         return "CartItem [productId=" + productId + ", name=" + name + ", price=" + price + ", brandName=" + brandName
-                + ", quantity=" + quantity + ", image=" + image + ", userId=" + userId + "]";
+                + ", quantity=" + quantity + ", image=" + image + ", userId=" + userId + ", size=" + size + "]";
     }
 
     public static Map<String, Value> toMap(CartItem item) {
         if (item == null) {
             return null;
         }
-        return MapUtil.buildMap()
+        MapUtil.MapBuilder builder = MapUtil.buildMap()
                 .add("productId", item.getProductId())
                 .add("name", item.getName())
                 .add("price", item.getPrice())
                 .add("brandName", item.getBrandName())
                 .add("quantity", item.getQuantity())
                 .add("image", item.getImage())
-                .add("userId", item.getUserId())
-                .done();
+                .add("userId", item.getUserId());
+        if (item.getSize() != null) {
+            builder.add("size", item.getSize());
+        }
+        return builder.done();
     }
     
     public static CartItem fromMap(Map<String, Object> map) {
@@ -94,6 +116,8 @@ public class CartItem {
         item.quantity = MapUtil.asInt(map, "quantity");
         item.image = MapUtil.asString(map, "image");
         item.userId = MapUtil.asString(map, "userId");
+        String size = MapUtil.asString(map, "size");
+        item.size = (size != null && !size.isEmpty()) ? size : null;
         return item;
     }
 }

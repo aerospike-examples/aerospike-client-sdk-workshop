@@ -48,8 +48,10 @@
         <!-- Fluent Aerospike Java Client -->
         <dependency>
             <groupId>com.aerospike</groupId>
-            <artifactId>aerospike-fluent-client-java</artifactId>
-            <version>0.1.0</version>
+            <artifactId>aerospike-fluent-client</artifactId>
+            <version>0.8.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../external_jars/aerospike-fluent-client-0.8.0-jar-with-dependencies.jar</systemPath>
         </dependency>
 
         <!-- JSON Processing -->
