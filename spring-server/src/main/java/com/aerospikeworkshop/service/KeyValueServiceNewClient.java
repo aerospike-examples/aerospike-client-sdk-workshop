@@ -71,8 +71,9 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         // =================================================================================
         aerospikeCluster = null;
         
-        // TODO: Create a session off the cluster using the defaults behaviour
-        session = aerospikeCluster.createSession(Behavior.DEFAULT);
+        // TODO: Create a session off the cluster using the defaults behavior
+        // session = aerospikeCluster.createSession(Behavior.DEFAULT);
+        session = null;
     }
 
     /**
