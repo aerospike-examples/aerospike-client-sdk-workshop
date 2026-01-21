@@ -2,8 +2,9 @@ package com.aerospikeworkshop.model;
 
 import java.util.Map;
 
-import com.aerospike.MapUtil;
-import com.aerospike.client.Value;
+import com.aerospike.client.fluent.Value;
+import com.aerospike.client.fluent.util.MapUtil;
+
 
 public class CartItem {
     private String productId;

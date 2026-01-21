@@ -3,8 +3,8 @@ package com.aerospikeworkshop.model;
 import java.util.List;
 import java.util.Map;
 
-import com.aerospike.MapUtil;
-import com.aerospike.client.Value;
+import com.aerospike.client.fluent.Value;
+import com.aerospike.client.fluent.util.MapUtil;
 
 public class Product {
     private String brandName;

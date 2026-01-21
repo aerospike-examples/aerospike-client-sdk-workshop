@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -75,6 +76,14 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
         aerospikeClient = new AerospikeClient(clientPolicy, new Host(config.getHostname(), config.getPort()));
     }
 
+    private Map<String, Value> fromNewMap(Map<String, com.aerospike.client.fluent.Value> newValuesMap) {
+        return newValuesMap.entrySet()
+                      .stream()
+                      .collect(Collectors.toMap(
+                          Map.Entry::getKey,
+                          e -> Value.get(e.getValue().getObject())
+                      ));  
+    }
     /**
      * Store a product record in Aerospike
      * 
@@ -85,7 +94,7 @@ public class KeyValueServiceOldClient implements KeyValueServiceInterface {
         Key key = new Key(NAMESPACE, PRODUCT_SET, product.getId());
         WritePolicy writePolicy = aerospikeClient.copyWritePolicyDefault();
         writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-        aerospikeClient.put(writePolicy, key, getBins(Product.toMap(product)));
+        aerospikeClient.put(writePolicy, key, getBins(fromNewMap(Product.toMap(product))));
     }
 
     /**

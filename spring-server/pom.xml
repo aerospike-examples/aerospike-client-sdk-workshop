@@ -44,12 +44,11 @@
             <artifactId>aerospike-client-jdk21</artifactId>
             <version>${aerospike.version}</version>
         </dependency>
-
         <!-- Fluent Aerospike Java Client -->
         <dependency>
             <groupId>com.aerospike</groupId>
-            <artifactId>aerospike-fluent-client-java</artifactId>
-            <version>0.1.0</version>
+            <artifactId>aerospike-client-fluent</artifactId>
+            <version>0.0.1</version>
         </dependency>
 
         <!-- JSON Processing -->

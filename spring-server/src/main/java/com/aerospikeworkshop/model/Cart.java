@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.aerospike.MapUtil;
-import com.aerospike.client.Value;
+import com.aerospike.client.fluent.Value;
+import com.aerospike.client.fluent.util.MapUtil;
 
 public class Cart {
     /**

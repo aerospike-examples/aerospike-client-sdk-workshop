@@ -8,24 +8,24 @@ import java.util.Optional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import com.aerospike.Cluster;
-import com.aerospike.ClusterDefinition;
-import com.aerospike.DataSet;
-import com.aerospike.RecordMapper;
-import com.aerospike.RecordResult;
-import com.aerospike.RecordStream.ObjectWithMetadata;
-import com.aerospike.Session;
-import com.aerospike.TypeSafeDataSet;
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.Key;
-import com.aerospike.client.Log;
-import com.aerospike.client.Log.Level;
-import com.aerospike.client.Value;
-import com.aerospike.client.cdt.MapOrder;
-import com.aerospike.client.query.IndexType;
-import com.aerospike.client.query.KeyRecord;
-import com.aerospike.exception.GenerationException;
-import com.aerospike.policy.Behavior;
+import com.aerospike.client.fluent.AerospikeException;
+import com.aerospike.client.fluent.AerospikeException.GenerationException;
+import com.aerospike.client.fluent.Cluster;
+import com.aerospike.client.fluent.ClusterDefinition;
+import com.aerospike.client.fluent.DataSet;
+import com.aerospike.client.fluent.Key;
+import com.aerospike.client.fluent.Log;
+import com.aerospike.client.fluent.Log.Level;
+import com.aerospike.client.fluent.RecordMapper;
+import com.aerospike.client.fluent.RecordResult;
+import com.aerospike.client.fluent.RecordStream.ObjectWithMetadata;
+import com.aerospike.client.fluent.Session;
+import com.aerospike.client.fluent.TypeSafeDataSet;
+import com.aerospike.client.fluent.Value;
+import com.aerospike.client.fluent.cdt.MapOrder;
+import com.aerospike.client.fluent.policy.Behavior;
+import com.aerospike.client.fluent.query.IndexCollectionType;
+import com.aerospike.client.fluent.query.IndexType;
 import com.aerospikeworkshop.config.ClientConfiguration;
 import com.aerospikeworkshop.model.Cart;
 import com.aerospikeworkshop.model.CartItem;
@@ -62,7 +62,8 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
     public KeyValueServiceNewClientAnswers(ClientConfiguration config) {
         ClusterDefinition definition = new ClusterDefinition(config.getHostname(), config.getPort())
                 .withNativeCredentials(config.getUserName(), config.getPassword())
-                .withLogLevel(Level.DEBUG);
+                .withLogLevel(Level.DEBUG)
+                .preferringRacks(1);
         
         if (config.getTlsCaFile() != null || config.getTlsName() != null) {
             definition.withTlsConfigOf()
@@ -412,7 +413,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
      */
     public void createStringIndex(String binName, String indexName) {
         try {
-            session.info().createIndex(null, NAMESPACE, PRODUCT_SET, indexName, binName, IndexType.STRING);
+            session.createIndex(productDataSet, indexName, binName, com.aerospike.client.fluent.info.classes.IndexType.STRING, IndexCollectionType.DEFAULT);
         } catch (AerospikeException e) {
             // Index already exists or other error - fail gracefully
             System.out.println("Index " + indexName + " already exists or failed to create: " + e.getMessage());
