@@ -133,6 +133,24 @@ Optional<Customer> custOptional = session.query(customerDataSet.id(20))
     .execute()
     .getFirst(customerMapper);
 ```
+#### Querying with metadata (generation number)
+When you need record metadata (e.g. the generation number for optimistic locking), use `getFirstWithMetadata()`. The returned `ObjectWithMetadata<T>` wraps the mapped object and provides `.getGeneration()` for use with `ensureGenerationIs()`.
+```java
+Optional<ObjectWithMetadata<Customer>> custWithMeta = session.query(customerDataSet.id(20))
+    .execute()
+    .getFirstWithMetadata(customerMapper);
+
+custWithMeta.ifPresent(cwm -> {
+    Customer cust = cwm.get();
+    int generation = cwm.getGeneration();
+
+    // Use generation for optimistic locking on update
+    session.update(customerDataSet.id(20))
+        .bin("visits").add(1)
+        .ensureGenerationIs(generation)
+        .execute();
+});
+```
 
 ### Querying multiple records
 #### Query with ids known
@@ -150,7 +168,7 @@ RecordStream recordStream = session.query(customerDataSet).execute();
 
 List<Customer> customers = session.query(customerDataSet)
     .execute()
-    .toObjectLlist(customerMapper);
+    .toObjectList(customerMapper);
 
 int total = session.query(productDataSet)
     .execute()
@@ -164,8 +182,38 @@ To filter which records are returned, a `where()` clause can be specified. Note 
 try (RecordStream rs = session.query(customerDataSet)
         .where("$.name == 'Tim' and $.age > 30")
         .limit(100)		// maximum of 100 records ever returned
-        .pageSize(20)		// Results are pageable 
+        .pageSize(20)		// Results are pageable
         .execute()) {...}
+```
+
+#### DSL Quick Reference
+The `.where()` clause accepts a string-based DSL (Domain-Specific Language) for filtering records. Here's a quick reference:
+
+| Syntax | Example | Description |
+|--------|---------|-------------|
+| `$.binName` | `$.age` | Reference a bin (field) value |
+| `== !=` | `$.status == 'active'` | Equality / inequality |
+| `> >= < <=` | `$.age > 21` | Numeric comparisons |
+| `and` | `$.age > 21 and $.status == 'active'` | Logical AND (combine filters) |
+| `or` | `$.region == 'US' or $.region == 'EU'` | Logical OR |
+| String values | `$.name == 'Tim'` | Use single quotes for strings |
+| Numeric values | `$.count > 50` | No quotes for numbers |
+| Format strings | `"$.%s == '%s'"` | Build dynamic DSL with `String.format` |
+
+**Examples:**
+```java
+// Single filter
+.where("$.category == 'Footwear'")
+
+// Multiple filters
+.where("$.category == 'Footwear' and $.brandName == 'Adidas'")
+
+// Numeric comparison
+.where("$.price > 500 and $.price < 1000")
+
+// Dynamic construction
+String dsl = String.format("$.%s == '%s'", "category", "Footwear");
+.where(dsl)
 ```
 ### Sorting and pagination
 Aerospike does not have inherent capabilities to sort data or paginate it by arbitrary fields, but this capability exists on the client. However, it is important to note that *all records will be downloaded to the client.* Hence this capability will consume memory on the client, and should only be used when a `limit` has been set on the query to alllow only a reasonably small set of records be returned.

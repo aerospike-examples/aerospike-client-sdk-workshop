@@ -15,7 +15,6 @@ import com.aerospike.client.fluent.ClusterDefinition;
 import com.aerospike.client.fluent.DataSet;
 import com.aerospike.client.fluent.Key;
 import com.aerospike.client.fluent.Log;
-import com.aerospike.client.fluent.Log.Level;
 import com.aerospike.client.fluent.RecordMapper;
 import com.aerospike.client.fluent.RecordResult;
 import com.aerospike.client.fluent.RecordStream.ObjectWithMetadata;
@@ -60,19 +59,10 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
     private final CartMapper cartMapper = new CartMapper();
     
     public KeyValueServiceNewClientAnswers(ClientConfiguration config) {
-        ClusterDefinition definition = new ClusterDefinition(config.getHostname(), config.getPort())
+        aerospikeCluster = new ClusterDefinition(config.getHostname(), config.getPort())
                 .withNativeCredentials(config.getUserName(), config.getPassword())
-                .withLogLevel(Level.DEBUG)
-                .preferringRacks(1);
-        
-        if (config.getTlsCaFile() != null || config.getTlsName() != null) {
-            definition.withTlsConfigOf()
-                .caFile(config.getTlsCaFile())
-                .tlsName(config.getTlsName())
-            .done();
-        }
-        aerospikeCluster = definition.connect();
-        
+                .connect();
+
         session = aerospikeCluster.createSession(Behavior.DEFAULT);
     }
 
@@ -104,7 +94,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
 
         List<Product> products = session.query(productDataSet)
                 .where("$.%s == '%s'", index, filterValue)
-                .readingOnlyBins("id", "name", "images", "brandName")
+                .readingOnlyBins("id", "name", "images", "brandName", "price")
                 .limit(count)
                 .execute()
                 .toObjectList(productMapper);
@@ -329,7 +319,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
     public void clearAllData() {
         session.truncate(cartDataSet);
         session.truncate(productDataSet);
-        session.delete(categoryDataSet.id(CATEGORY_KEY));
+        session.truncate(categoryDataSet);
     }
 
     /**
@@ -399,9 +389,9 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
     public void loadCategories(String category, String subCategory, String articleType, String usage, String brandName) {
         session.upsert(categoryDataSet.id(CATEGORY_KEY))
             .bin("categories").onMapKey(category,MapOrder.KEY_ORDERED).onMapKey(subCategory).add(1)
-            .bin("articleTypes").listAppendUnique(articleType, true)
-            .bin("usage").listAppendUnique(usage, true)
-            .bin("brandNames").listAppendUnique(brandName, true)
+            .bin("articleTypes").listAppend(articleType, opt -> opt.addUnique().allowFailures())
+            .bin("usage").listAppend(usage, opt -> opt.addUnique().allowFailures())
+            .bin("brandNames").listAppend(brandName, opt -> opt.addUnique().allowFailures())
             .execute();
     }
 

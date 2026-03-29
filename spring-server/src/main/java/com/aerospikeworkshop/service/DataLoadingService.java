@@ -87,6 +87,7 @@ public class DataLoadingService {
         Map<String, String> indexes = new HashMap<>();
         indexes.put("category", "cat_idx");
         indexes.put("subCategory", "subCat_idx");
+        indexes.put("articleType", "articleType_idx");
         indexes.put("usage", "usage_idx");
         indexes.put("brandName", "brand_idx");
         indexes.put("gender", "gender_idx");

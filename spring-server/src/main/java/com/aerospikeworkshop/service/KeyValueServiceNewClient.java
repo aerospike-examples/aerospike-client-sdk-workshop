@@ -141,7 +141,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         //  - Filter results using the `where` clause. The `index` and `filterValue` parameters
         //    will be used to construct the filter expression. (For example: bin "category" equals "Footware".)
         //  - Limit the results to `count`.
-        //  - Optimize the query to only read the "id", "name", "images", and "brandName" bins.
+        //  - Optimize the query to only read the "id", "name", "images", "brandName", and "price" bins.
         //  - Convert the final result into a `List<Product>` and assign it to the `products` variable.
         // =================================================================================
         List<Product> products = List.of(getProduct("41213").get());
@@ -426,7 +426,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
     public void clearAllData() {
         session.truncate(cartDataSet);
         session.truncate(productDataSet);
-        session.delete(categoryDataSet.id(CATEGORY_KEY));
+        session.truncate(categoryDataSet);
     }
 
     /**
@@ -496,9 +496,9 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
     public void loadCategories(String category, String subCategory, String articleType, String usage, String brandName) {
         session.upsert(categoryDataSet.id(CATEGORY_KEY))
             .bin("categories").onMapKey(category,MapOrder.KEY_ORDERED).onMapKey(subCategory).add(1)
-            .bin("articleTypes").listAppendUnique(articleType, true)
-            .bin("usage").listAppendUnique(usage, true)
-            .bin("brandNames").listAppendUnique(brandName, true)
+            .bin("articleTypes").listAppend(articleType, opt -> opt.addUnique().allowFailures())
+            .bin("usage").listAppend(usage, opt -> opt.addUnique().allowFailures())
+            .bin("brandNames").listAppend(brandName, opt -> opt.addUnique().allowFailures())
             .execute();
     }
 
