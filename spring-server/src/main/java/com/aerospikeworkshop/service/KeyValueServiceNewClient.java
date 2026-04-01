@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.aerospike.client.fluent.AerospikeException;
 import com.aerospike.client.fluent.AerospikeException.GenerationException;
 import com.aerospike.client.fluent.Cluster;
+import com.aerospike.client.fluent.ClusterDefinition;
 import com.aerospike.client.fluent.DataSet;
 import com.aerospike.client.fluent.Key;
 import com.aerospike.client.fluent.Record;
@@ -19,6 +20,7 @@ import com.aerospike.client.fluent.RecordMapper;
 import com.aerospike.client.fluent.RecordResult;
 import com.aerospike.client.fluent.RecordStream.ObjectWithMetadata;
 import com.aerospike.client.fluent.Session;
+import com.aerospike.client.fluent.policy.Behavior;
 import com.aerospike.client.fluent.TypeSafeDataSet;
 import com.aerospike.client.fluent.Value;
 import com.aerospike.client.fluent.cdt.MapOrder;
@@ -58,20 +60,13 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
     private final CartMapper cartMapper = new CartMapper();
     
     public KeyValueServiceNewClient(ClientConfiguration config) {
-        // =================================================================================
-        // TODO: STEP 1: CONNECT TO THE DATABASE
-        // =================================================================================
-        // Define the cluster connection and assign it to the `aerospikeCluster` variable.
-        //
-        // Refer to the documentation for the `ClusterDefinition` class to see how to
-        // configure the connection. You will need to provide the hostname, port, and
-        // user credentials, which are all available in the `config` object.
-        // =================================================================================
-        aerospikeCluster = null;
-        
-        // TODO: Create a session off the cluster using the defaults behavior
-        // session = aerospikeCluster.createSession(Behavior.DEFAULT);
-        session = null;
+        ClusterDefinition clusterDef = new ClusterDefinition(config.getHostname(), config.getPort());
+        if (config.getUserName() != null && config.getPassword() != null) {
+            clusterDef = clusterDef.withNativeCredentials(config.getUserName(), config.getPassword());
+        }
+        aerospikeCluster = clusterDef.connect();
+
+        session = aerospikeCluster.createSession(Behavior.DEFAULT);
     }
 
     /**
@@ -114,7 +109,9 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         //  - Get the first record from the result set.
         //  - Use the `productMapper` to convert the record into a `Product` object.
         // =================================================================================
-        return Optional.empty();
+        return session.query(productDataSet.id(productId))
+                .execute()
+                .getFirst(productMapper);
     }
 
     /**
@@ -133,18 +130,13 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         // =================================================================================
         // TODO: STEP 4: QUERY FOR PRODUCTS
         // =================================================================================
-        // Implement the logic to query for a list of products.
-        //
-        // Refer to the documentation on how to build a query using the `session` object.
-        // Your goal is to:
-        //  - Query the `productDataSet`.
-        //  - Filter results using the `where` clause. The `index` and `filterValue` parameters
-        //    will be used to construct the filter expression. (For example: bin "category" equals "Footware".)
-        //  - Limit the results to `count`.
-        //  - Optimize the query to only read the "id", "name", "images", "brandName", and "price" bins.
-        //  - Convert the final result into a `List<Product>` and assign it to the `products` variable.
-        // =================================================================================
-        List<Product> products = List.of(getProduct("41213").get());
+        String dsl = String.format("$.%s == '%s'", index, filterValue);
+        List<Product> products = session.query(productDataSet)
+                .where(dsl)
+                .limit(count)
+                .readingOnlyBins("id", "name", "images", "brandName", "price")
+                .execute()
+                .toObjectList(productMapper);
         
         return new KeyValueServiceInterface.QueryResult(products, System.currentTimeMillis() - startTime);
     }
@@ -187,17 +179,11 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         // =================================================================================
         // TODO: STEP 5: EXECUTE THE ADVANCED SEARCH
         // =================================================================================
-        // The DSL query string has been built by you. Now, execute the query.
-        //
-        // Your goal is to:
-        //  - Use the `session` object to query the `productDataSet`.
-        //  - Apply the pre-built `dsl` string using the `.where()` clause.
-        //  - Limit the results to `count`.
-        //  - Execute the query and convert the result to a list of `Product` objects
-        //    using the `productMapper`.
-        //  - Assign the result to the `products` variable.
-        // =================================================================================
-        List<Product> products = List.of(getProduct("41213").get());
+        List<Product> products = session.query(productDataSet)
+                .where(dsl)
+                .limit(count)
+                .execute()
+                .toObjectList(productMapper);
         
         long endTime = System.currentTimeMillis() - startTime;
         return new KeyValueServiceInterface.QueryResult(products, endTime);
@@ -223,10 +209,10 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
             //  - Return the first one, or if there isn't one an empty cart.
             // =================================================================================
             // <-- Your code goes here
-            return new Cart(Map.of("41213", new CartItem(userId, 2, 
-                    "http://assets.myntassets.com/h_161,q_95,w_125/v1/images/"
-                    + "style/properties/4e98e52e6516a9f93ee70287eece69ac_images.jpg", 
-                    getProduct("41213").get())));
+            return session.query(cartDataSet.id(userId))
+                    .execute()
+                    .getFirst(cartMapper)
+                    .orElse(new Cart());
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -300,10 +286,9 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                     //  - Insert the item to the cart in the ITEMS_BIN at the key `productId` in a new record
                     // =================================================================================
 
-                    // TODO: STEP 7a: Fetch the user's cart and use `getFirstWithMetadata` to return an
-                    // Optional with the cart and record metadata details
-                    Optional<ObjectWithMetadata<Cart>>cartAndMetadata = 
-                            Optional.of(new ObjectWithMetadata<Cart>(getCart(userId), new Record(null, 1, 1)));
+                    // STEP 7a: Fetch the user's cart with metadata for optimistic locking
+                    Optional<ObjectWithMetadata<Cart>> cartAndMetadata =
+                            session.query(key).execute().getFirstWithMetadata(cartMapper);
                     
                     resultCart = cartAndMetadata
                         .map(cartWithMetadata -> {
@@ -314,10 +299,11 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                                     // The item exists in the record, just update the quantity
                                     item.setQuantity(item.getQuantity() + quantity);
                                     
-                                    // TODO: STEP 7b: On the record identified by `key`, there is a bin called `ITEMS_BIN`
-                                    // which is a map of productId -> cart items as a map. Find the item with the
-                                    // passed `productId` and add `quantity` to it's  "quantity" key. Make sure to 
-                                    // check that the record has the same generation as when it was read!
+                                    // STEP 7b: CDT map operation to increment quantity on existing item
+                                    session.update(key)
+                                        .bin(ITEMS_BIN).onMapKey(productId).onMapKey("quantity").add(quantity)
+                                        .ensureGenerationIs(cartWithMetadata.getGeneration())
+                                        .execute();
                                 },
                                 () -> {
                                     // Record exists but item is not there, just add it
@@ -336,8 +322,10 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                             Cart cart = new Cart();
                             CartItem newItem = new CartItem(userId, quantity, image, product);
                             cart.add(newItem);
-                            // TODO: STEP 7c: The record doesn't exist. Create the record and insert the `newItem` into 
-                            // the map with productId as it's key
+                            // STEP 7c: Insert new record with the item in the ITEMS_BIN map
+                            session.insert(key)
+                                .bin(ITEMS_BIN).onMapKey(productId).setTo(newItem, cartItemMapper)
+                                .execute();
                             return cart;
                         });
                 }

@@ -68,7 +68,7 @@ session.upsert(customerDataSet.id(80))
 ```
 # Insert a record in one shot
 ```java
-session.insertInto(customerDataSet.id(81))
+session.insert(customerDataSet.id(81))
         .bins("name", "age")
         .values("Sam", 28)
         .execute();
@@ -83,7 +83,7 @@ session.update(customerDataSet.ids(84, 85))
 ```
 ## Inserting objects
 ```java
-session.insertInto(customerDataSet)
+session.insert(customerDataSet)
     .objects(customerList)
     .using(customerMapper)
     .execute();
@@ -112,10 +112,10 @@ session.doInTransaction(txnSession -> {
     Optional<KeyRecord> result = 
         txnSession.query(customerDataSet.id(1)).execute().getFirst();
     if (shouldInsert) {
-        txnSession.insertInto(customerDataSet.id(3));
+        txnSession.insert(customerDataSet.id(3));
     }
     txnSession.delete(customerDataSet.id(4));
-    txnSession.insertInto(customerDataSet.id(3)).notInAnyTransaction().execute();
+    txnSession.insert(customerDataSet.id(3)).notInAnyTransaction().execute();
 });
 ```
 ## Querying data
