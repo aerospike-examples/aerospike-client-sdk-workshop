@@ -1,15 +1,22 @@
 # Aerospike Retail Demo
 
-A demo retail website powered by Aerospike, showcasing Key-Value operations with a modern Spring Boot + React architecture. This will use the newer, fluent API and is set up as a challenge.
+A demo retail website powered by Aerospike, showcasing Key-Value operations with a modern Spring Boot + React architecture. This will use the newer Java SDK and is set up as a challenge.
 
 ## Quick Start
 
 ```bash
-# 1. Start Aerospike
+# 1. Start Aerospike (use "docker-compose" if "docker compose" is not available)
 docker compose up -d
 
-# 2. Install the fluent client (if not already installed)
-cd external_jars && ./registerJars.sh && cd ..
+# 2. Install the Java SDK (if not already installed)
+mkdir temp
+cd temp
+git clone https://github.com/aerospike/aerospike-client-java-sdk.git
+cd aerospike-client-java-sdk
+git checkout init
+mvn clean install -DskipTests
+cd ../..
+rm -rf temp
 
 # 3. Build and run the application
 cd spring-server
@@ -23,13 +30,13 @@ Sample data loads automatically on first startup (~150 products). No manual data
 
 ## The Challenge!
 
-We would love to get feedback on the fluent API! A guide to getting started with the API can be [found here](guide-to-fluent-apis.md). This workshop contains a fully-working retail / shopping cart application, with the entire database access encoded in a single file. This file can be found in `com.aerospikeworkshop.service`.
+We would love to get feedback on the Java SDK! A guide to getting started with the API can be [found here](guide-to-java-sdk.md). This workshop contains a fully-working retail / shopping cart application, with the entire database access encoded in a single file. This file can be found in `com.aerospikeworkshop.service`.
 
 There are actually two files of interest in this package:
-1. `KeyValueServiceOldClient` contains the fully working code in the existing (non-fluent) Aerospike client.
-2. `KeyValueServiceNewClient` contains the skeleton code to be coded in the new API with big `TODO:` comments detailing what needs to be done.
+1. `KeyValueServiceOldClient` contains the fully working code in the legacy Aerospike client.
+2. `KeyValueServiceNewClient` contains the skeleton code to be coded in the new SDK with big `TODO:` comments detailing what needs to be done.
 
-Any comments or questions, please leave github comments associated with either this repository or the [aerospike-fluent-client-java](https://github.com/aerospike-community/aerospike-fluent-client-java).
+Any comments or questions, please leave github comments associated with either this repository or the [aerospike-client-java-sdk](https://github.com/aerospike/aerospike-client-java-sdk).
 
 ## Project Structure
 
@@ -43,7 +50,7 @@ retail-demo/
 ├── config/                 # Configuration files
 │   └── aerospike/          # Aerospike server configuration
 ├── docker-compose.yml      # Local Aerospike container
-└── guide-to-fluent-apis.md # Fluent API reference
+└── guide-to-java-sdk.md    # Java SDK reference
 ```
 
 ## Technologies
@@ -55,13 +62,13 @@ retail-demo/
 
 ## Running with the Legacy Client
 
-To run with the old (non-fluent) Aerospike client instead:
+To run with the legacy Aerospike client instead:
 
 ```bash
 mvn spring-boot:run
 ```
 
-The default profile uses the legacy client. Use `-Dspring-boot.run.profiles=new-client` for the fluent API version.
+The default profile uses the legacy client. Use `-Dspring-boot.run.profiles=new-client` for the new Java SDK version.
 
 ## Optional: Building the Frontend
 

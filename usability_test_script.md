@@ -149,7 +149,7 @@ return session.query(productDataSet.id(productId))
 
 ## Step 4: Query for Products
 
-**Goal**: The tester needs to implement a simple query to retrieve a list of products, testing the basic fluent query API.
+**Goal**: The tester needs to implement a simple query to retrieve a list of products, testing the basic query API.
 
 **Tester Prompt**: Update the code to populate the homepage with items from the DB.
 
@@ -186,7 +186,7 @@ List<Product> products = session.query(productDataSet)
 
 **Questions**:
 
-*   Describe your experience using the fluent API to build the query.
+*   Describe your experience using the Java SDK to build the query.
 *   How did using a string-based DSL in the `.where()` clause feel compared to building query objects programmatically?
 *   The new client automatically uses the best secondary index. What are your thoughts on not having to specify an index in your query code?
 
@@ -391,7 +391,7 @@ session.insertInto(key)
 
 *   How intuitive were CDT map operations (onMapKey, add, setTo) with this new methodology?
 *   Describe your understanding of how `getFirstWithMetadata` and `ensureGenerationIs` work together.
-*   What are your thoughts on the fluent API used for the map operations (e.g., `onMapKey`, `add`, `setTo`)?
+*   What are your thoughts on the Java SDK used for the map operations (e.g., `onMapKey`, `add`, `setTo`)?
 *   How did you find the process of handling the different cases (item exists, item doesn't exist, cart doesn't exist)?
 
 **Success criteria**:
@@ -406,5 +406,5 @@ At the end of the session, please ask the tester the following questions to gath
 1.  Rate your satisfaction with the new API from 1 (terrible) to 5 (amazing).
 2.  What was the best or most intuitive part of using this new client API?
 3.  What was the most confusing or difficult part of the new client API?
-4.  Overall, how would you compare this new fluent API to other database clients you have used in the past?
+4.  Overall, how would you compare this new Java SDK to other database clients you have used in the past?
 5.  Do you have any final thoughts or suggestions for how we could improve the client?

@@ -2,8 +2,7 @@ package com.aerospikeworkshop.model;
 
 import java.util.Map;
 
-import com.aerospike.client.fluent.Value;
-import com.aerospike.client.fluent.util.MapUtil;
+import com.aerospike.client.sdk.util.MapUtil;
 
 
 public class CartItem {
@@ -71,7 +70,7 @@ public class CartItem {
                 + ", quantity=" + quantity + ", image=" + image + ", userId=" + userId + "]";
     }
 
-    public static Map<String, Value> toMap(CartItem item) {
+    public static Map<String, Object> toMap(CartItem item) {
         if (item == null) {
             return null;
         }

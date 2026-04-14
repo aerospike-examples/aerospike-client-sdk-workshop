@@ -2,6 +2,7 @@ package com.aerospikeworkshop.config;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class DataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         try {
+            createSecondaryIndexes();
+
             long existingCount = dataLoadingService.getProductCount();
             if (existingCount > 0) {
                 log.info("Database already contains {} products, skipping auto-load", existingCount);
@@ -44,6 +47,25 @@ public class DataInitializer implements ApplicationRunner {
         } catch (Exception e) {
             log.warn("Auto-load failed (database may not be ready): {}", e.getMessage());
             log.info("You can manually load data via: POST /rest/v1/data/load?dataPath=<path>");
+        }
+    }
+
+    private void createSecondaryIndexes() {
+        Map<String, String> indexes = Map.of(
+            "category", "cat_idx",
+            "subCategory", "subCat_idx",
+            "usage", "usage_idx",
+            "brandName", "brand_idx",
+            "articleType", "article_idx"
+        );
+
+        for (Map.Entry<String, String> entry : indexes.entrySet()) {
+            try {
+                dataLoadingService.createSingleIndex(entry.getKey(), entry.getValue());
+                log.info("Created secondary index: {} on bin {}", entry.getValue(), entry.getKey());
+            } catch (Exception e) {
+                log.debug("Index {} may already exist: {}", entry.getValue(), e.getMessage());
+            }
         }
     }
 

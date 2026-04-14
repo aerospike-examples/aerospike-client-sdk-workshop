@@ -3,8 +3,7 @@ package com.aerospikeworkshop.model;
 import java.util.List;
 import java.util.Map;
 
-import com.aerospike.client.fluent.Value;
-import com.aerospike.client.fluent.util.MapUtil;
+import com.aerospike.client.sdk.util.MapUtil;
 
 public class Product {
     private String brandName;
@@ -182,7 +181,7 @@ public class Product {
         return result;
     }
     
-    public static Map<String, Value> toMap(Product product) {
+    public static Map<String, Object> toMap(Product product) {
         if (product == null) {
             return null;
         }

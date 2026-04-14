@@ -13,17 +13,17 @@
     </parent>
 
     <groupId>com.aerospike</groupId>
-    <artifactId>aerospike-fluent-client-workshop</artifactId>
+    <artifactId>aerospike-client-sdk-workshop</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Retail Demo Showing off the Aerospike Fluent API</name>
+    <name>Retail Demo Showing off the Aerospike Javak SDK</name>
     <description>Spring Boot server for the Aerospike retail demo - Key-Value only</description>
 
     <properties>
         <java.version>21</java.version>
         <aerospike.version>9.1.0</aerospike.version>
-        <aerospike-fluent.version>0.1.0</aerospike-fluent.version>
+        <aerospike-java-sdk.version>0.1.0</aerospike-java-sdk.version>
     </properties>
 
     <dependencies>
@@ -44,10 +44,10 @@
             <artifactId>aerospike-client-jdk21</artifactId>
             <version>${aerospike.version}</version>
         </dependency>
-        <!-- Fluent Aerospike Java Client -->
+        <!-- Aerospike Java SDK -->
         <dependency>
             <groupId>com.aerospike</groupId>
-            <artifactId>aerospike-client-fluent</artifactId>
+            <artifactId>aerospike-client-sdk</artifactId>
             <version>0.0.1</version>
         </dependency>
 

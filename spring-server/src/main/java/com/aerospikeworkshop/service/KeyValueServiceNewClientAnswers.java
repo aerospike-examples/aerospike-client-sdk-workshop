@@ -8,23 +8,22 @@ import java.util.Optional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import com.aerospike.client.fluent.AerospikeException;
-import com.aerospike.client.fluent.AerospikeException.GenerationException;
-import com.aerospike.client.fluent.Cluster;
-import com.aerospike.client.fluent.ClusterDefinition;
-import com.aerospike.client.fluent.DataSet;
-import com.aerospike.client.fluent.Key;
-import com.aerospike.client.fluent.Log;
-import com.aerospike.client.fluent.RecordMapper;
-import com.aerospike.client.fluent.RecordResult;
-import com.aerospike.client.fluent.RecordStream.ObjectWithMetadata;
-import com.aerospike.client.fluent.Session;
-import com.aerospike.client.fluent.TypeSafeDataSet;
-import com.aerospike.client.fluent.Value;
-import com.aerospike.client.fluent.cdt.MapOrder;
-import com.aerospike.client.fluent.policy.Behavior;
-import com.aerospike.client.fluent.query.IndexCollectionType;
-import com.aerospike.client.fluent.query.IndexType;
+import com.aerospike.client.sdk.AerospikeException;
+import com.aerospike.client.sdk.AerospikeException.GenerationException;
+import com.aerospike.client.sdk.Cluster;
+import com.aerospike.client.sdk.ClusterDefinition;
+import com.aerospike.client.sdk.DataSet;
+import com.aerospike.client.sdk.Key;
+import com.aerospike.client.sdk.Log;
+import com.aerospike.client.sdk.RecordMapper;
+import com.aerospike.client.sdk.RecordResult;
+import com.aerospike.client.sdk.RecordStream.ObjectWithMetadata;
+import com.aerospike.client.sdk.Session;
+import com.aerospike.client.sdk.TypeSafeDataSet;
+import com.aerospike.client.sdk.cdt.MapOrder;
+import com.aerospike.client.sdk.policy.Behavior;
+import com.aerospike.client.sdk.query.IndexCollectionType;
+import com.aerospike.client.sdk.query.IndexType;
 import com.aerospikeworkshop.config.ClientConfiguration;
 import com.aerospikeworkshop.model.Cart;
 import com.aerospikeworkshop.model.CartItem;
@@ -403,7 +402,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
      */
     public void createStringIndex(String binName, String indexName) {
         try {
-            session.createIndex(productDataSet, indexName, binName, com.aerospike.client.fluent.info.classes.IndexType.STRING, IndexCollectionType.DEFAULT);
+            session.createIndex(productDataSet, indexName, binName, IndexType.STRING, IndexCollectionType.DEFAULT);
         } catch (AerospikeException e) {
             // Index already exists or other error - fail gracefully
             System.out.println("Index " + indexName + " already exists or failed to create: " + e.getMessage());
@@ -468,7 +467,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
             return Product.fromMap(map);
         }
         @Override
-        public Map<String, Value> toMap(Product element) {
+        public Map<String, Object> toMap(Product element) {
             return Product.toMap(element);
         }
         @Override
@@ -484,7 +483,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
             return Cart.fromMap(map);
         }
         @Override
-        public Map<String, Value> toMap(Cart element) {
+        public Map<String, Object> toMap(Cart element) {
             return Cart.toMap(element);
         }
         @Override
@@ -499,7 +498,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
             return CartItem.fromMap(map);
         }
         @Override
-        public Map<String, Value> toMap(CartItem element) {
+        public Map<String, Object> toMap(CartItem element) {
             return CartItem.toMap(element);
         }
         @Override

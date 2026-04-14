@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.aerospike.client.fluent.Value;
-import com.aerospike.client.fluent.util.MapUtil;
+import com.aerospike.client.sdk.util.MapUtil;
 
 public class Cart {
     /**
@@ -79,8 +78,8 @@ public class Cart {
         return cart;
     }
     
-    public static Map<String, Value> toMap(Cart cart) {
-        List<Map<String, Value>> items = new ArrayList<>();
+    public static Map<String, Object> toMap(Cart cart) {
+        List<Map<String, Object>> items = new ArrayList<>();
         for (CartItem item : cart.getItems()) {
             items.add(CartItem.toMap(item));
         }

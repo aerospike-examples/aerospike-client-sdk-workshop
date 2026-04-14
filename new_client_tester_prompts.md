@@ -38,7 +38,7 @@ java -jar target/retail-demo-spring-1.0.0.jar --aerospike.port=3100 ..."new-clie
 In the file, find the comment block for `STEP 2: STORE A PRODUCT OBJECT` and add your implementation where indicated.
 
 **How to validate**:
-*   After you implement the code, you need to load product data into the database. Open a new terminal, and run the following commands from your project root (`aerospike-fluent-client-workshop`):
+*   After you implement the code, you need to load product data into the database. Open a new terminal, and run the following commands from your project root (`aerospike-client-sdk-workshop`):
     ```bash
     cd data
     curl -X POST "http://localhost:8080/rest/v1/data/create-indexes"
@@ -70,7 +70,7 @@ In the file, find the comment block for `STEP 3: GET A PRODUCT BY ID` and replac
 
 ## Step 4: Query for Products
 
-**Goal**: Implement a simple query to retrieve a list of products, testing the basic fluent query API.
+**Goal**: Implement a simple query to retrieve a list of products, testing the basic query API.
 
 **Tester Prompt**: Update the code to populate the homepage with items from the DB.
 
@@ -156,7 +156,7 @@ Once you have completed all the steps, please provide your feedback on the follo
 1.  Rate your satisfaction with the new API from 1 (terrible) to 5 (amazing).
 2.  What was the best or most intuitive part of using this new client API?
 3.  What was the most confusing or difficult part of the new client API?
-4.  Overall, how would you compare this new fluent API to other database clients you have used in the past?
+4.  Overall, how would you compare this new Java SDK to other database clients you have used in the past?
 5.  Do you have any final thoughts or suggestions for how we could improve the client?
 
 Thank you for your participation!
