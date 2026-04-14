@@ -1,1 +1,1 @@
-Download the [kaggle fashion dataset](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset) and place the contents of the `/images/` directory in this folder.
+This directory is reserved for product images. The workshop uses placeholder images via placehold.co, so no local images are required.
