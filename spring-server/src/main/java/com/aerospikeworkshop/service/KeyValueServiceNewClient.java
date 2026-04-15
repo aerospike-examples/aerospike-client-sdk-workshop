@@ -111,9 +111,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         //  - Get the first record from the result set.
         //  - Use the `productMapper` to convert the record into a `Product` object.
         // =================================================================================
-        return session.query(productDataSet.id(productId))
-                .execute()
-                .getFirst(productMapper);
+        return Optional.empty();
     }
 
     /**
@@ -132,13 +130,18 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         // =================================================================================
         // TODO: STEP 4: QUERY FOR PRODUCTS
         // =================================================================================
-        String dsl = String.format("$.%s == '%s'", index, filterValue);
-        List<Product> products = session.query(productDataSet)
-                .where(dsl)
-                .limit(count)
-                .readingOnlyBins("id", "name", "images", "brandName", "price")
-                .execute()
-                .toObjectList(productMapper);
+        // Implement the logic to query for a list of products.
+        //
+        // Refer to the documentation on how to build a query using the `session` object.
+        // Your goal is to:
+        //  - Query the `productDataSet`.
+        //  - Filter results using the `where` clause. The `index` and `filterValue` parameters
+        //    will be used to construct the filter expression. (For example: bin "category" equals "Footware".)
+        //  - Limit the results to `count`.
+        //  - Optimize the query to only read the "id", "name", "images", and "brandName" bins.
+        //  - Convert the final result into a `List<Product>` and assign it to the `products` variable.
+        // =================================================================================
+        List<Product> products = List.of(getProduct("41213").get());
         
         return new KeyValueServiceInterface.QueryResult(products, System.currentTimeMillis() - startTime);
     }
@@ -181,11 +184,17 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         // =================================================================================
         // TODO: STEP 5: EXECUTE THE ADVANCED SEARCH
         // =================================================================================
-        List<Product> products = session.query(productDataSet)
-                .where(dsl)
-                .limit(count)
-                .execute()
-                .toObjectList(productMapper);
+        // The DSL query string has been built by you. Now, execute the query.
+        //
+        // Your goal is to:
+        //  - Use the `session` object to query the `productDataSet`.
+        //  - Apply the pre-built `dsl` string using the `.where()` clause.
+        //  - Limit the results to `count`.
+        //  - Execute the query and convert the result to a list of `Product` objects
+        //    using the `productMapper`.
+        //  - Assign the result to the `products` variable.
+        // =================================================================================
+        List<Product> products = List.of(getProduct("41213").get());
         
         long endTime = System.currentTimeMillis() - startTime;
         return new KeyValueServiceInterface.QueryResult(products, endTime);
@@ -211,10 +220,10 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
             //  - Return the first one, or if there isn't one an empty cart.
             // =================================================================================
             // <-- Your code goes here
-            return session.query(cartDataSet.id(userId))
-                    .execute()
-                    .getFirst(cartMapper)
-                    .orElse(new Cart());
+            return new Cart(Map.of("41213", new CartItem(userId, 2, 
+                    "http://assets.myntassets.com/h_161,q_95,w_125/v1/images/"
+                    + "style/properties/4e98e52e6516a9f93ee70287eece69ac_images.jpg", 
+                    getProduct("41213").get())));
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -288,9 +297,10 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                     //  - Insert the item to the cart in the ITEMS_BIN at the key `productId` in a new record
                     // =================================================================================
 
-                    // STEP 7a: Fetch the user's cart with metadata for optimistic locking
-                    Optional<ObjectWithMetadata<Cart>> cartAndMetadata =
-                            session.query(key).execute().getFirstWithMetadata(cartMapper);
+                    // TODO: STEP 7a: Fetch the user's cart and use `getFirstWithMetadata` to return an
+                    // Optional with the cart and record metadata details
+                    Optional<ObjectWithMetadata<Cart>>cartAndMetadata = 
+                            Optional.of(new ObjectWithMetadata<Cart>(getCart(userId), new Record(null, 1, 1)));
                     
                     resultCart = cartAndMetadata
                         .map(cartWithMetadata -> {
@@ -301,11 +311,10 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                                     // The item exists in the record, just update the quantity
                                     item.setQuantity(item.getQuantity() + quantity);
                                     
-                                    // STEP 7b: CDT map operation to increment quantity on existing item
-                                    session.update(key)
-                                        .bin(ITEMS_BIN).onMapKey(productId).onMapKey("quantity").add(quantity)
-                                        .ensureGenerationIs(cartWithMetadata.getGeneration())
-                                        .execute();
+                                    // TODO: STEP 7b: On the record identified by `key`, there is a bin called `ITEMS_BIN`
+                                    // which is a map of productId -> cart items as a map. Find the item with the
+                                    // passed `productId` and add `quantity` to it's  "quantity" key. Make sure to 
+                                    // check that the record has the same generation as when it was read!
                                 },
                                 () -> {
                                     // Record exists but item is not there, just add it
@@ -324,10 +333,8 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                             Cart cart = new Cart();
                             CartItem newItem = new CartItem(userId, quantity, image, product);
                             cart.add(newItem);
-                            // STEP 7c: Insert new record with the item in the ITEMS_BIN map
-                            session.insert(key)
-                                .bin(ITEMS_BIN).onMapKey(productId).setTo(newItem, cartItemMapper)
-                                .execute();
+                            // TODO: STEP 7c: The record doesn't exist. Create the record and insert the `newItem` into 
+                            // the map with productId as it's key
                             return cart;
                         });
                 }
