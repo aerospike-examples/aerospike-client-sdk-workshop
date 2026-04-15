@@ -50,8 +50,8 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
 
     private final Cluster aerospikeCluster;
     
-    private final TypeSafeDataSet<Product> productDataSet = new TypeSafeDataSet<>(NAMESPACE, PRODUCT_SET, Product.class);
-    private final TypeSafeDataSet<CartItem> cartDataSet = new TypeSafeDataSet<>(NAMESPACE, CARTS_SET, CartItem.class);
+    private final TypeSafeDataSet<Product> productDataSet = TypeSafeDataSet.of(NAMESPACE, PRODUCT_SET, Product.class);
+    private final TypeSafeDataSet<CartItem> cartDataSet = TypeSafeDataSet.of(NAMESPACE, CARTS_SET, CartItem.class);
     private final DataSet categoryDataSet = DataSet.of(NAMESPACE, CATEGORY_SET);
     private final Session session;
     private final ProductMapper productMapper = new ProductMapper();
@@ -59,6 +59,9 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
     private final CartMapper cartMapper = new CartMapper();
     
     public KeyValueServiceNewClient(ClientConfiguration config) {
+        // =================================================================================
+        // TODO: STEP 1: VALIDATE THE CONNECTION
+        // =================================================================================
         ClusterDefinition clusterDef = new ClusterDefinition(config.getHostname(), config.getPort());
         if (config.getUserName() != null && config.getPassword() != null) {
             clusterDef = clusterDef.withNativeCredentials(config.getUserName(), config.getPassword());
