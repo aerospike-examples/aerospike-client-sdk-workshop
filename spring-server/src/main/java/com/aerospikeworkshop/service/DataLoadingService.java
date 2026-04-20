@@ -90,8 +90,8 @@ public class DataLoadingService {
         indexes.put("articleType", "articleType_idx");
         indexes.put("usage", "usage_idx");
         indexes.put("brandName", "brand_idx");
-        indexes.put("gender", "gender_idx");
-        indexes.put("season", "season_idx");
+//        indexes.put("gender", "gender_idx");
+//        indexes.put("season", "season_idx");
         
         for (Map.Entry<String, String> entry : indexes.entrySet()) {
             keyValueService.createStringIndex(entry.getKey(), entry.getValue());

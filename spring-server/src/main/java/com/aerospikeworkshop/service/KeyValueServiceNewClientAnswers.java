@@ -122,20 +122,20 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
                 "usage", asNonNullString(usage), 
                 "brandName", asNonNullString(brandName));
 
-        String dsl = "";
+        String ael = "";
         for (Entry<String, String> thisEntry : indexes.entrySet()) {
             if (!thisEntry.getValue().isEmpty()) {
-                if (!dsl.isEmpty()) {
-                    dsl += " and ";
+                if (!ael.isEmpty()) {
+                    ael += " and ";
                 }
-                dsl += String.format("$.%s == '%s'", thisEntry.getKey(), thisEntry.getValue());
+                ael += String.format("$.%s == '%s'", thisEntry.getKey(), thisEntry.getValue());
             }
         }
         
-        System.out.println("DSL: " + dsl);
+        System.out.println("AEL: " + ael);
         
         List<Product> products = session.query(productDataSet)
-                .where(dsl)
+                .where(ael)
                 .limit(count)
                 .execute()
                 .toObjectList(productMapper);

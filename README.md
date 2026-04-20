@@ -13,7 +13,6 @@ mkdir temp
 cd temp
 git clone https://github.com/aerospike/aerospike-client-java-sdk.git
 cd aerospike-client-java-sdk
-git checkout init
 mvn clean install -DskipTests
 cd ../..
 rm -rf temp
@@ -21,7 +20,8 @@ rm -rf temp
 # 3. Build and run the application
 cd spring-server
 mvn clean package -DskipTests
-mvn spring-boot:run -Dspring-boot.run.profiles=new-client
+java -jar target/aerospike-client-sdk-workshop-1.0.0.jar --print.profiles.active=new-client
+# add extra parameters needed to coonect to the cluster, eg --aerospike.port=3100
 
 # 4. Open http://localhost:8080
 ```

@@ -138,7 +138,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         //  - Filter results using the `where` clause. The `index` and `filterValue` parameters
         //    will be used to construct the filter expression. (For example: bin "category" equals "Footware".)
         //  - Limit the results to `count`.
-        //  - Optimize the query to only read the "id", "name", "images", and "brandName" bins.
+        //  - Optimize the query to only read the "id", "name", "images", "brandName", and "price" bins.
         //  - Convert the final result into a `List<Product>` and assign it to the `products` variable.
         // =================================================================================
         List<Product> products = List.of(getProduct("41213").get());
@@ -170,16 +170,16 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         // Form a a DSL string of the non-empty index filters passed. For example,
         // if category == 'Footware' and brandName == 'Adidas' this will form
         // "$.category == 'Footware' and $.brandName == 'Adidas'"
-        String dsl = "";
+        String ael = "";
         for (Entry<String, String> thisEntry : indexes.entrySet()) {
             if (!thisEntry.getValue().isEmpty()) {
-                if (!dsl.isEmpty()) {
-                    dsl += " and ";
+                if (!ael.isEmpty()) {
+                    ael += " and ";
                 }
-                dsl += String.format("$.%s == '%s'", thisEntry.getKey(), thisEntry.getValue());
+                ael += String.format("$.%s == '%s'", thisEntry.getKey(), thisEntry.getValue());
             }
         }
-        System.out.println("DSL: " + dsl);
+        System.out.println("AEL: " + ael);
 
         // =================================================================================
         // TODO: STEP 5: EXECUTE THE ADVANCED SEARCH
@@ -194,8 +194,8 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         //    using the `productMapper`.
         //  - Assign the result to the `products` variable.
         // =================================================================================
-        List<Product> products = List.of(getProduct("41213").get());
-        
+        List<Product> products = List.of(getProduct("13283").get());
+
         long endTime = System.currentTimeMillis() - startTime;
         return new KeyValueServiceInterface.QueryResult(products, endTime);
     }
@@ -220,10 +220,10 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
             //  - Return the first one, or if there isn't one an empty cart.
             // =================================================================================
             // <-- Your code goes here
-            return new Cart(Map.of("41213", new CartItem(userId, 2, 
-                    "http://assets.myntassets.com/h_161,q_95,w_125/v1/images/"
-                    + "style/properties/4e98e52e6516a9f93ee70287eece69ac_images.jpg", 
-                    getProduct("41213").get())));
+            return new Cart(Map.of("13283", new CartItem(userId, 2, 
+                    "http://assets.myntassets.com/v1/images/" +
+                    "style/properties/3c03eb9654656c19f467f85b7de928f5_images.jpg",
+                    getProduct("13283").get())));
             
         } catch (Exception e) {
             e.printStackTrace();
