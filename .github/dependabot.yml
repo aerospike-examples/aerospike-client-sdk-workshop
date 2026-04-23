@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: /spring-server
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /website
+    schedule:
+      interval: daily
+
+  - package-ecosystem: maven
+    directory: /spring-server
+    schedule:
+      interval: daily
