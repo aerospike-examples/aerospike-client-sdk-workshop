@@ -20,13 +20,13 @@ rm -rf temp
 # 3. Build and run the application
 cd spring-server
 mvn clean package -DskipTests
-java -jar target/aerospike-client-sdk-workshop-1.0.0.jar --print.profiles.active=new-client
-# add extra parameters needed to coonect to the cluster, eg --aerospike.port=3100
+mvn spring-boot:run -Dspring-boot.run.profiles=new-client
+# add extra parameters needed to connect to the cluster, eg -Dspring-boot.run.arguments=--aerospike.port=3100
 
 # 4. Open http://localhost:8080
 ```
 
-Sample data loads automatically on first startup (~150 products). No manual data loading required.
+Sample data loads automatically on first startup (200 products). No manual data loading required.
 
 ## The Challenge!
 
@@ -55,7 +55,7 @@ retail-demo/
 
 ## Technologies
 
-- **Backend**: Spring Boot 3.2, Java 21, Aerospike Client 9.1.0
+- **Backend**: Spring Boot 3.5, Java 21, Aerospike Java SDK 0.0.1 (`new-client` profile) and legacy Aerospike Java client 9.1.0 (`old-client` profile)
 - **Frontend**: React 18, Vite 5, React Router DOM
 - **Database**: Aerospike (Key-Value operations, Secondary Indexes)
 - **Build**: Maven (Java), npm/yarn (React)
