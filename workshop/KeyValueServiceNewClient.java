@@ -355,7 +355,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                     // TODO: STEP 8a: Fetch the user's cart and use `getFirstWithMetadata` to return an
                     // Optional with the cart and record metadata details
                     Optional<ObjectWithMetadata<Cart>>cartAndMetadata = 
-                            Optional.of(new ObjectWithMetadata<Cart>(getCart(userId), new Record(null, 1, 1)));
+                            Optional.of(new ObjectWithMetadata<Cart>(getCart(userId), new Record(1, 1)));
                     
                     resultCart = cartAndMetadata
                         .map(cartWithMetadata -> {
