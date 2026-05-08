@@ -8,22 +8,13 @@ A demo retail website powered by Aerospike, showcasing Key-Value operations with
 # 1. Start Aerospike (use "docker-compose" if "docker compose" is not available)
 docker compose up -d
 
-# 2. Install the Java SDK (if not already installed)
-mkdir temp
-cd temp
-git clone https://github.com/aerospike/aerospike-client-java-sdk.git
-cd aerospike-client-java-sdk
-mvn clean install -DskipTests
-cd ../..
-rm -rf temp
-
-# 3. Build and run the application
+# 2. Build and run the application
 cd spring-server
 mvn clean package -DskipTests
-java -jar target/aerospike-client-sdk-workshop-1.0.0.jar --print.profiles.active=new-client
+java -jar target/aerospike-client-sdk-workshop-1.0.0.jar --spring.profiles.active=new-client
 # add extra parameters needed to coonect to the cluster, eg --aerospike.port=3100
 
-# 4. Open http://localhost:8080
+# 3. Open http://localhost:8080
 ```
 
 Sample data loads automatically on first startup (~150 products). No manual data loading required.

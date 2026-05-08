@@ -141,7 +141,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
         //  - Optimize the query to only read the "id", "name", "images", "brandName", and "price" bins.
         //  - Convert the final result into a `List<Product>` and assign it to the `products` variable.
         // =================================================================================
-        List<Product> products = List.of(getProduct("41213").get());
+        List<Product> products = List.of(getProduct("13283").get());
         
         return new KeyValueServiceInterface.QueryResult(products, System.currentTimeMillis() - startTime);
     }
@@ -300,7 +300,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                     // TODO: STEP 7a: Fetch the user's cart and use `getFirstWithMetadata` to return an
                     // Optional with the cart and record metadata details
                     Optional<ObjectWithMetadata<Cart>>cartAndMetadata = 
-                            Optional.of(new ObjectWithMetadata<Cart>(getCart(userId), new Record(null, 1, 1)));
+                            Optional.of(new ObjectWithMetadata<Cart>(getCart(userId), new Record(1, 1)));
                     
                     resultCart = cartAndMetadata
                         .map(cartWithMetadata -> {

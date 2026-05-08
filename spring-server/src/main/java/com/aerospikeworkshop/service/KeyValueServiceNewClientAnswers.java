@@ -91,12 +91,13 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
     public KeyValueServiceInterface.QueryResult query(String index, String filterValue, int count) {
         long startTime = System.currentTimeMillis();
 
+        //List<Product> products = List.of();
         List<Product> products = session.query(productDataSet)
-                .where("$.%s == '%s'", index, filterValue)
-                .readingOnlyBins("id", "name", "images", "brandName", "price")
-                .limit(count)
-                .execute()
-                .toObjectList(productMapper);
+            .where("$.%s == '%s'", index, filterValue)
+            .readingOnlyBins("id", "name", "images", "brandName", "price")
+            .limit(count)
+            .execute()
+            .toObjectList(productMapper);
         
         return new KeyValueServiceInterface.QueryResult(products, System.currentTimeMillis() - startTime);
     }
