@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aerospike-client-sdk-workshop-python"
+version = "1.0.0"
+description = "FastAPI backend for the Aerospike retail SDK workshop"
+readme = "README.md"
+requires-python = ">=3.10,<3.15"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic-settings>=2.0.0",
+    "python-multipart>=0.0.9",
+    "aerospike-sdk>=0.9.0a5",
+    "aerospike>=16.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "httpx>=0.27.0",
+]
+
+[project.scripts]
+aerospike-workshop = "aerospikeworkshop.main:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+aerospikeworkshop = ["py.typed"]

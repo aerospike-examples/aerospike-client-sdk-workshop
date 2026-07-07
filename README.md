@@ -1,83 +1,114 @@
 # Aerospike Retail Demo
 
-A demo retail website powered by Aerospike, showcasing Key-Value operations with a modern Spring Boot + React architecture. This will use the newer Java SDK and is set up as a challenge.
+A demo retail website powered by Aerospike, showcasing Key-Value operations. Available in **Java** (Spring Boot) and **Python** (FastAPI). Pick the language you prefer — both share the same React UI and sample data.
 
 ## Quick Start
 
 ```bash
-# 1. Start Aerospike (use "docker-compose" if "docker compose" is not available)
+# 1. Start Aerospike
 docker compose up -d
 
-# 2. Build and run the application
-cd spring-server
-mvn clean package -DskipTests
-java -jar target/aerospike-client-sdk-workshop-1.0.0.jar --spring.profiles.active=new-client
-# add extra parameters needed to coonect to the cluster, eg --aerospike.port=3100
-
-# 3. Open http://localhost:8080
+# 2. Choose ONE backend (Java OR Python) — both use port 8080
 ```
 
-Sample data loads automatically on first startup (~150 products). No manual data loading required.
+### Java workshop
+
+```bash
+cd spring-server
+mvn clean package -DskipTests
+java -jar target/aerospike-client-sdk-workshop-1.0.0.jar \
+  --spring.profiles.active=new-client --aerospike.port=3000
+
+# Or use the helper script from repo root:
+# AEROSPIKE_PORT=3000 SPRING_PROFILES_ACTIVE=new-client ./scripts/run-java.sh
+```
+
+### Python workshop
+
+```bash
+cd python-server
+pip install -e .
+AEROSPIKE_CLIENT_PROFILE=new-client AEROSPIKE_PORT=3000 \
+  uvicorn aerospikeworkshop.main:app --host 0.0.0.0 --port 8080
+
+# Or use the helper script from repo root:
+# AEROSPIKE_CLIENT_PROFILE=new-client ./scripts/run-python.sh
+```
+
+Open http://localhost:8080 — sample data loads automatically on first startup (~195 products).
 
 ## The Challenge!
 
-We would love to get feedback on the Java SDK! A guide to getting started with the API can be [found here](guide-to-java-sdk.md). This workshop contains a fully-working retail / shopping cart application, with the entire database access encoded in a single file. This file can be found in `com.aerospikeworkshop.service`.
+We would love feedback on the Aerospike SDKs! Each backend has a single file where all database access lives:
 
-There are actually two files of interest in this package:
-1. `KeyValueServiceOldClient` contains the fully working code in the legacy Aerospike client.
-2. `KeyValueServiceNewClient` contains the skeleton code to be coded in the new SDK with big `TODO:` comments detailing what needs to be done.
+| Language | Workshop file | SDK guide |
+|----------|---------------|-----------|
+| Java | `spring-server/.../KeyValueServiceNewClient.java` | [guide-to-java-sdk.md](guide-to-java-sdk.md) |
+| Python | `python-server/.../key_value_service_new_client.py` | [guide-to-python-sdk.md](guide-to-python-sdk.md) |
 
-Any comments or questions, please leave github comments associated with either this repository or the [aerospike-client-java-sdk](https://github.com/aerospike/aerospike-client-java-sdk).
+Each also has:
+
+- **Old client** — fully working reference using the legacy Aerospike client
+- **New client** — skeleton with `TODO:` steps for you to implement
+- **Answers** — complete solution for facilitators
+
+### Client profiles
+
+| Profile | Java (`--spring.profiles.active`) | Python (`AEROSPIKE_CLIENT_PROFILE`) |
+|---------|-----------------------------------|---------------------------------------|
+| Legacy (default) | `old-client` | `old-client` |
+| Workshop | `new-client` | `new-client` |
+| Solution | `new-client-answers` | `new-client-answers` |
 
 ## Project Structure
 
 ```
-retail-demo/
-├── spring-server/          # Spring Boot backend (Java 21)
-├── website/                # React frontend (Vite)
-├── external_jars/          # External JAR files (tracked in Git)
+aerospike-client-sdk-workshop/
+├── spring-server/          # Java Spring Boot backend
+├── python-server/          # Python FastAPI backend
+├── website/                # React frontend (Vite) — shared by both backends
 ├── data/                   # Sample product data (auto-loaded on startup)
-│   └── styles/             # Product JSON files
-├── config/                 # Configuration files
-│   └── aerospike/          # Aerospike server configuration
+├── config/aerospike/       # Aerospike server configuration
 ├── docker-compose.yml      # Local Aerospike container
-└── guide-to-java-sdk.md    # Java SDK reference
+├── guide-to-java-sdk.md
+├── guide-to-python-sdk.md
+├── new_client_tester_prompts.md        # Java workshop steps
+└── new_client_tester_prompts_python.md # Python workshop steps
 ```
 
 ## Technologies
 
-- **Backend**: Spring Boot 3.2, Java 21, Aerospike Client 9.1.0
-- **Frontend**: React 18, Vite 5, React Router DOM
-- **Database**: Aerospike (Key-Value operations, Secondary Indexes)
-- **Build**: Maven (Java), npm/yarn (React)
+- **Java backend**: Spring Boot 3.5, Java 21, Aerospike Java SDK
+- **Python backend**: FastAPI, uvicorn, aerospike-sdk (Python)
+- **Frontend**: React 18, Vite 5
+- **Database**: Aerospike (Key-Value, Secondary Indexes, CDT maps)
 
-## Running with the Legacy Client
+## Building the Frontend
 
-To run with the legacy Aerospike client instead:
-
-```bash
-mvn spring-boot:run
-```
-
-The default profile uses the legacy client. Use `-Dspring-boot.run.profiles=new-client` for the new Java SDK version.
-
-## Optional: Building the Frontend
-
-The frontend should be pre-built in `spring-server/src/main/resources/static/`. If it's missing:
+The frontend should be pre-built in each backend's static directory. If missing:
 
 ```bash
 cd website
 npm install
-npm run build
+npm run build          # copies to both spring-server and python-server
+# Or target one backend:
+npm run build:spring   # spring-server only
+npm run build:python   # python-server only
+```
+
+## Dev Mode (hot-reload frontend)
+
+```bash
+# Terminal 1 — run either Java or Python backend on :8080
+# Terminal 2:
+cd website && npm run dev   # http://localhost:5173, proxies /rest → :8080
 ```
 
 ## Data Management
 
-Sample data loads automatically when the app starts with an empty database. You can also manage data manually:
-
 ```bash
 # Reload data
-curl -X POST "http://localhost:8080/rest/v1/data/load?dataPath=$(cd ../data && pwd)"
+curl -X POST "http://localhost:8080/rest/v1/data/load?dataPath=$(pwd)/data"
 
 # Check product count
 curl "http://localhost:8080/rest/v1/data/count"
@@ -85,3 +116,7 @@ curl "http://localhost:8080/rest/v1/data/count"
 # Clear all data
 curl -X DELETE "http://localhost:8080/rest/v1/data/clear?confirm=yes-delete-all"
 ```
+
+## Aerospike Port
+
+Docker Compose exposes Aerospike on port **3000**. Pass `--aerospike.port=3000` (Java) or `AEROSPIKE_PORT=3000` (Python) when connecting to the local container.

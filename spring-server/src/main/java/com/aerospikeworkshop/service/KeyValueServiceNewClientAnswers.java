@@ -19,7 +19,8 @@ import com.aerospike.client.sdk.RecordMapper;
 import com.aerospike.client.sdk.RecordResult;
 import com.aerospike.client.sdk.RecordStream.ObjectWithMetadata;
 import com.aerospike.client.sdk.Session;
-import com.aerospike.client.sdk.TypeSafeDataSet;
+import com.aerospike.client.sdk.TypedDataSet;
+import com.aerospike.client.sdk.TypedKey;
 import com.aerospike.client.sdk.cdt.MapOrder;
 import com.aerospike.client.sdk.policy.Behavior;
 import com.aerospike.client.sdk.query.IndexCollectionType;
@@ -49,8 +50,9 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
 
     private final Cluster aerospikeCluster;
     
-    private final TypeSafeDataSet<Product> productDataSet = new TypeSafeDataSet<>(NAMESPACE, PRODUCT_SET, Product.class);
-    private final TypeSafeDataSet<CartItem> cartDataSet = new TypeSafeDataSet<>(NAMESPACE, CARTS_SET, CartItem.class);
+    private final TypedDataSet<Product> productDataSet = new TypedDataSet<>(NAMESPACE, PRODUCT_SET, Product.class);
+    // private final TypedDataSet<CartItem> cartItemDataSet = new TypedDataSet<>(NAMESPACE, CARTS_SET, CartItem.class);
+    private final TypedDataSet<Cart> cartDataSet = new TypedDataSet<>(NAMESPACE, CARTS_SET, Cart.class);
     private final DataSet categoryDataSet = DataSet.of(NAMESPACE, CATEGORY_SET);
     private final Session session;
     private final ProductMapper productMapper = new ProductMapper();
@@ -185,7 +187,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
             Product product = productOptional
                     .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
 
-            Key key = cartDataSet.id(userId);
+            TypedKey<Cart> key = cartDataSet.id(userId);
 //            Cart cart;
             
             // Get product image
@@ -253,8 +255,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
      */
     public Cart clearCart(String userId) {
         try {
-            Key key = cartDataSet.id(userId);
-            session.upsert(key).bin(ITEMS_BIN).mapClear().execute();
+            session.upsert(cartDataSet.id(userId)).bin(ITEMS_BIN).mapClear().execute();
             return new Cart();
         } catch (Exception e) {
             System.err.println("Error clearing cart: " + e.getMessage());
@@ -265,7 +266,7 @@ public class KeyValueServiceNewClientAnswers implements KeyValueServiceInterface
 
     public Cart updateCartItem(String userId, String productId, int quantity) {
         try {
-            Key key = cartDataSet.id(userId);
+            TypedKey<Cart> key = cartDataSet.id(userId);
             return session.query(key)
                     .execute()
                     .getFirst(cartMapper)
