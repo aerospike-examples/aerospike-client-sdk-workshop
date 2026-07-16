@@ -1,6 +1,7 @@
 import { useLoaderData } from "react-router-dom";
 import styles from "./index.module.css";
 import Card from "../../components/card";
+import { apiUrl } from "../../config/api";
 
 export const searchLoader = async ({ request }) => {
     let url = new URL(request.url);
@@ -18,7 +19,7 @@ export const searchLoader = async ({ request }) => {
     if (usage) searchParams.append("usage", usage);
     if (brandName) searchParams.append("brandName", brandName);
     
-    let response = await fetch(`http://localhost:8080/rest/v1/search?${searchParams.toString()}`);
+    let response = await fetch(apiUrl(`search?${searchParams.toString()}`));
     let results = await response.json();
     
     return { 
@@ -47,7 +48,7 @@ export const categoryLoader = async (idx, filter) => {
             index = ""
     }
     console.log(index)
-    let response = await fetch(`http://localhost:8080/rest/v1/category?idx=${index}&filter_value=${filter}`);
+    let response = await fetch(apiUrl(`category?idx=${index}&filter_value=${filter}`));
     
     let results = await response.json();
     return { results, filter };

@@ -8,7 +8,9 @@ const __dirname = path.dirname(__filename);
 const TARGETS = {
   spring: path.join(__dirname, '..', 'spring-server', 'src', 'main', 'resources', 'static'),
   python: path.join(__dirname, '..', 'python-server', 'static'),
+  rust: path.join(__dirname, '..', 'rust-server', 'static'),
   both: null,
+  all: null,
 };
 
 const distPath = path.join(__dirname, 'dist');
@@ -98,20 +100,31 @@ function copyDistToTarget(label, destinationPath) {
 }
 
 function resolveTargets() {
-  const arg = process.argv[2] || 'both';
+  const arg = process.argv[2] || 'all';
   if (arg === 'both') {
     return [
       ['Spring Boot resources', TARGETS.spring],
       ['Python server static', TARGETS.python],
     ];
   }
+  if (arg === 'all') {
+    return [
+      ['Spring Boot resources', TARGETS.spring],
+      ['Python server static', TARGETS.python],
+      ['Rust server static', TARGETS.rust],
+    ];
+  }
   const destination = TARGETS[arg];
   if (!destination) {
-    console.error(`❌ Unknown target "${arg}". Use: spring, python, or both`);
+    console.error(`❌ Unknown target "${arg}". Use: spring, python, rust, both, or all`);
     process.exit(1);
   }
-  const label = arg === 'spring' ? 'Spring Boot resources' : 'Python server static';
-  return [[label, destination]];
+  const labels = {
+    spring: 'Spring Boot resources',
+    python: 'Python server static',
+    rust: 'Rust server static',
+  };
+  return [[labels[arg] || arg, destination]];
 }
 
 for (const [label, destination] of resolveTargets()) {

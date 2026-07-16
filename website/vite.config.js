@@ -37,8 +37,9 @@ export default defineConfig({
   // Configure dev server
   server: {
     port: 5173,
+    strictPort: true,
     proxy: {
-      // Proxy API calls to Spring Boot during development
+      // Proxy API calls to whichever backend is on :8080 (Java, Python, or Rust)
       '/rest': {
         target: 'http://localhost:8080',
         changeOrigin: true,

@@ -2,6 +2,7 @@ services:
   aerospike:
     image: aerospike/aerospike-server:latest
     container_name: aerospike-workshop
+    mac_address: 02:42:ac:11:00:02
     ports:
       - "3000:3000"
       - "3001:3001"
