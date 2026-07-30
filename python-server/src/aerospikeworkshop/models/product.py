@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Product(BaseModel):
@@ -30,6 +30,16 @@ class Product(BaseModel):
     article_attr: dict[str, str] | None = Field(default=None, alias="articleAttr")
     variant_name: str | None = Field(default=None, alias="variantName")
     category: str | None = None
+
+    @field_validator("sale_price", "added", "price", mode="before")
+    @classmethod
+    def _coerce_numeric_to_int(cls, value: Any) -> Any:
+        """Match Java MapUtil.asLong — truncate fractional numbers to int."""
+        if value is None or isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return int(value)
+        return value
 
     @classmethod
     def from_bins(cls, bins: dict[str, Any]) -> Product:

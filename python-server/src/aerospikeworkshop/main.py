@@ -21,6 +21,23 @@ from aerospikeworkshop.startup import run_startup
 
 logger = logging.getLogger(__name__)
 
+LOG_FORMAT = "%(levelname)s:     %(message)s"
+
+
+def configure_logging() -> None:
+    """Ensure application INFO logs appear when running under uvicorn."""
+    app_logger = logging.getLogger("aerospikeworkshop")
+    if app_logger.handlers:
+        return
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    app_logger.addHandler(handler)
+    app_logger.setLevel(logging.INFO)
+    app_logger.propagate = False
+
+
+configure_logging()
+
 STATIC_DIR = Path(__file__).resolve().parents[2] / "static"
 
 

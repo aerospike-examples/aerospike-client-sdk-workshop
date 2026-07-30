@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import time
 
+from aerospike_async import MapOrder
 from aerospike_sdk import Behavior, ClusterDefinition, DataSet
 from aerospike_sdk.exceptions import GenerationError
 
@@ -347,7 +348,7 @@ class KeyValueServiceNewClientAnswers:
         await (
             session.upsert(self.category_dataset.id(CATEGORY_KEY))
             .bin("categories")
-            .on_map_key(category)
+            .on_map_key(category, create_type=MapOrder.KEY_ORDERED)
             .on_map_key(sub_category)
             .add(1)
             .bin("articleTypes")

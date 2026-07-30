@@ -155,9 +155,11 @@ except GenerationError:
 ## Category metadata
 
 ```python
+from aerospike_async import MapOrder
+
 await (
     session.upsert(category_dataset.id("product_meta"))
-    .bin("categories").on_map_key(category).on_map_key(sub_category).add(1)
+    .bin("categories").on_map_key(category, create_type=MapOrder.KEY_ORDERED).on_map_key(sub_category).add(1)
     .bin("articleTypes").list_append(article_type, unique=True, no_fail=True)
     .bin("usage").list_append(usage, unique=True, no_fail=True)
     .bin("brandNames").list_append(brand_name, unique=True, no_fail=True)
