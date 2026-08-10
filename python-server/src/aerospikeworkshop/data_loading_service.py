@@ -14,12 +14,22 @@ class LoadResult:
     success_count: int
     error_count: int
     total_files: int
+    products_stored: int = 0
 
     @property
     def success_rate(self) -> float:
         if self.total_files == 0:
             return 0.0
         return self.success_count / self.total_files * 100
+
+    def __str__(self) -> str:
+        summary = (
+            f"processed {self.success_count}/{self.total_files} sample files "
+            f"({self.error_count} errors); {self.products_stored} products in products set"
+        )
+        if self.success_count > 0 and self.products_stored == 0:
+            summary += "; category metadata updated in cat_index set"
+        return summary
 
 
 class DataLoadingService:
@@ -43,7 +53,10 @@ class DataLoadingService:
             except Exception as exc:
                 error_count += 1
                 print(f"Error loading file {file_path}: {exc}")
-        return LoadResult(success_count, error_count, len(json_files))
+        products_stored = await self.get_product_count()
+        return LoadResult(
+            success_count, error_count, len(json_files), products_stored
+        )
 
     async def load_single_product(self, file_path: str) -> None:
         raw_data = self._json.parse_product_file(file_path)

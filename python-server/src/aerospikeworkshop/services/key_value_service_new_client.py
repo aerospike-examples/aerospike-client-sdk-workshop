@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 
+from aerospike_async import MapOrder
 from aerospike_sdk import Behavior, ClusterDefinition, DataSet
 
 from aerospikeworkshop.config import Settings
@@ -295,23 +296,12 @@ class KeyValueServiceNewClient:
 
     async def get_product_count(self) -> int:
         session = self._require_session()
-        info = session.info()
-        details = await info.namespace_details(NAMESPACE)
-        if not details:
-            return 0
-        replication_factor = int(details.get("effective_replication_factor", 1))
-        sets_info = await info.info(f"sets/{NAMESPACE}")
-        for _key, value in sets_info.items():
-            for entry in str(value).split(";"):
-                if entry.startswith(f"{PRODUCT_SET}:"):
-                    parts = dict(
-                        token.split("=", 1)
-                        for token in entry.split(":")[1].split(",")
-                        if "=" in token
-                    )
-                    objects = int(parts.get("objects", 0))
-                    return objects // replication_factor
-        return 0
+        stream = await session.query(self.product_dataset).with_no_bins().execute()
+        count = 0
+        async for _row in stream:
+            count += 1
+        stream.close()
+        return count
 
     async def clear_all_data(self) -> None:
         session = self._require_session()
@@ -370,7 +360,7 @@ class KeyValueServiceNewClient:
         await (
             session.upsert(self.category_dataset.id(CATEGORY_KEY))
             .bin("categories")
-            .on_map_key(category)
+            .on_map_key(category, create_type=MapOrder.KEY_ORDERED)
             .on_map_key(sub_category)
             .add(1)
             .bin("articleTypes")

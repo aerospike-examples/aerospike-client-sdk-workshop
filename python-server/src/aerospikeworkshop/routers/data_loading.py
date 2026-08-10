@@ -47,6 +47,7 @@ async def load_data(request: Request, dataPath: str):
             "totalFiles": result.total_files,
             "successCount": result.success_count,
             "errorCount": result.error_count,
+            "productsStored": result.products_stored,
             "successRate": result.success_rate,
             "message": "Data loading completed",
         }
