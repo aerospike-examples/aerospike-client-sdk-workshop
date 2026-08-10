@@ -9,9 +9,10 @@ import ProdDisplayHorizontal from "../../components/prodDisplayHorizontal";
 import SizeOptions from "../../components/sizeOptions";
 import { useCart } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
+import { apiUrl } from "../../config/api";
 
 export const productLoader = async (product) => {
-    let response = await fetch(`http://localhost:8080/rest/v1/get?prod=${product}`);
+    let response = await fetch(apiUrl(`get?prod=${product}`));
     let { error, ...data } = await response.json();
 
     if(error) throw new Response("", {

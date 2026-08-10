@@ -5,6 +5,7 @@ import cart from "../../assets/shopping-cart.png";
 import Profile from "../profile";
 import { useCart } from "../../context/CartContext";
 import SearchableDropdown from "../searchableDropdown";
+import { apiUrl } from "../../config/api";
 
 const Header = () => {
     const [query, setQuery] = useState("");
@@ -42,7 +43,7 @@ const Header = () => {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch('http://localhost:8080/rest/v1/categories');
+            const response = await fetch(apiUrl('categories'));
             const data = await response.json();
             setCategories(data.categories || []);
         } catch (error) {
@@ -52,7 +53,7 @@ const Header = () => {
 
     const fetchArticleTypes = async () => {
         try {
-            const response = await fetch('http://localhost:8080/rest/v1/article-types');
+            const response = await fetch(apiUrl('article-types'));
             const data = await response.json();
             setArticleTypes(data.articleTypes || []);
         } catch (error) {
@@ -62,7 +63,7 @@ const Header = () => {
 
     const fetchUsageTypes = async () => {
         try {
-            const response = await fetch('http://localhost:8080/rest/v1/usage-types');
+            const response = await fetch(apiUrl('usage-types'));
             const data = await response.json();
             setUsageTypes(data.usageTypes || []);
         } catch (error) {
@@ -72,7 +73,7 @@ const Header = () => {
 
     const fetchBrandNames = async () => {
         try {
-            const response = await fetch('http://localhost:8080/rest/v1/brand-names');
+            const response = await fetch(apiUrl('brand-names'));
             const data = await response.json();
             setBrandNames(data.brandNames || []);
         } catch (error) {

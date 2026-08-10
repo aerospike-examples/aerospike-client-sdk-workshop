@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 
 const CartContext = createContext();
 
@@ -78,7 +79,7 @@ export const CartProvider = ({ children }) => {
             try {
                 // Try to load from backend first
                 const userId = getUserId();
-                const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}`);
+                const response = await fetch(apiUrl(`cart/${userId}`));
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -117,7 +118,7 @@ export const CartProvider = ({ children }) => {
         try {
             // Try to use backend API first
             const userId = getUserId();
-            const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}/add`, {
+            const response = await fetch(apiUrl(`cart/${userId}/add`), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -138,7 +139,7 @@ export const CartProvider = ({ children }) => {
             }
 
             // Fallback to local storage approach
-            const productResponse = await fetch(`http://localhost:8080/rest/v1/get?prod=${productId}`);
+            const productResponse = await fetch(apiUrl(`get?prod=${productId}`));
             const productData = await productResponse.json();
             
             if (productData.error) {
@@ -167,7 +168,7 @@ export const CartProvider = ({ children }) => {
         try {
             // Try backend API first
             const userId = getUserId();
-            const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}/remove?productId=${productId}`, {
+            const response = await fetch(apiUrl(`cart/${userId}/remove?productId=${productId}`), {
                 method: 'DELETE'
             });
 
@@ -190,7 +191,7 @@ export const CartProvider = ({ children }) => {
         try {
             // Try backend API first
             const userId = getUserId();
-            const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}/update`, {
+            const response = await fetch(apiUrl(`cart/${userId}/update`), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -220,7 +221,7 @@ export const CartProvider = ({ children }) => {
         try {
             // Try backend API first
             const userId = getUserId();
-            const response = await fetch(`http://localhost:8080/rest/v1/cart/${userId}/clear`, {
+            const response = await fetch(apiUrl(`cart/${userId}/clear`), {
                 method: 'DELETE'
             });
 

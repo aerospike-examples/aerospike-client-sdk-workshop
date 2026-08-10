@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run copy-to-both",
+    "build": "vite build && npm run copy-to-all",
     "build-only": "vite build",
     "copy-to-spring": "node copy-dist.js spring",
     "copy-to-python": "node copy-dist.js python",
+    "copy-to-rust": "node copy-dist.js rust",
     "copy-to-both": "node copy-dist.js both",
+    "copy-to-all": "node copy-dist.js all",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
