@@ -13,8 +13,9 @@ aerospike:
   host: localhost
   port: 3000
 
-# Logging configuration
+# Logging configuration (SLF4J via Logback). Named SDK loggers live in logback-spring.xml.
 logging:
   level:
-    com.aerospike: DEBUG
+    com.aerospike.client.sdk: INFO
+    com.aerospikeworkshop: INFO
     root: INFO 

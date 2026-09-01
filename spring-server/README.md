@@ -432,9 +432,10 @@ This simplified version does not include:
 5. **Java Version**: Ensure Java 21 is installed and configured
 
 ### Logs
-Enable debug logging by setting:
+The server uses SLF4J with Spring Boot’s Logback binding. Tune Aerospike SDK categories in `src/main/resources/logback-spring.xml` (several named loggers are commented out). You can also set levels in `application.yml`:
 ```yaml
 logging:
   level:
-    com.aerospike: DEBUG
+    com.aerospike.client.sdk: DEBUG
+    com.aerospike.client.sdk.tend: DEBUG
 ``` 

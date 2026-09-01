@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,6 @@ import com.aerospike.Session;
 import com.aerospike.TypeSafeDataSet;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
-import com.aerospike.client.Log;
 import com.aerospike.client.Record;
 import com.aerospike.client.Value;
 import com.aerospike.client.cdt.MapOrder;
@@ -40,6 +41,8 @@ import jakarta.annotation.PreDestroy;
 @Service
 @Profile("new-client")
 public class KeyValueServiceNewClient implements KeyValueServiceInterface {
+
+    private static final Logger log = LoggerFactory.getLogger(KeyValueServiceNewClient.class);
 
     private static final String ITEMS_BIN = "items";
     private static final String NAMESPACE = "test";
@@ -394,7 +397,7 @@ public class KeyValueServiceNewClient implements KeyValueServiceInterface {
                         });
                 }
                 catch (GenerationException ge) {
-                    Log.info("Lost race condition when adding product " + productId);
+                    log.info("Lost race condition when adding product {}", productId);
                     // Continue to retry 
                 }
             }

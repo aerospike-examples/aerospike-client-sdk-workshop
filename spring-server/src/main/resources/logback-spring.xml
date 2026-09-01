@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Spring Boot's Logback setup (console + optional file). This is the SLF4J binding. -->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- Workshop application -->
+    <logger name="com.aerospikeworkshop" level="INFO"/>
+
+    <!--
+      Aerospike Java SDK named loggers (SLF4J). The SDK no longer uses a static Log class.
+      Leave the root SDK logger on; uncomment a category when you need more detail.
+    -->
+    <logger name="com.aerospike.client.sdk" level="INFO"/>
+    <!-- <logger name="com.aerospike.client.sdk.tend" level="DEBUG"/> -->
+    <!-- <logger name="com.aerospike.client.sdk.connection" level="DEBUG"/> -->
+    <!-- <logger name="com.aerospike.client.sdk.command" level="DEBUG"/> -->
+    <!-- <logger name="com.aerospike.client.sdk.query" level="DEBUG"/> -->
+    <!-- <logger name="com.aerospike.client.sdk.info" level="DEBUG"/> -->
+    <!-- <logger name="com.aerospike.client.sdk.behavior" level="WARN"/> -->
+    <logger name="com.aerospike.client.sdk.ael" level="DEBUG"/>
+    <!-- High volume: encode/decode metadata only. Keep TRACE off unless investigating serde. -->
+    <!-- <logger name="com.aerospike.client.sdk.serde" level="TRACE"/> -->
+
+    <!-- Legacy Java client (old-client profile). Uncomment to see cluster-tend output. -->
+    <!-- <logger name="com.aerospike.client" level="DEBUG"/> -->
+</configuration>

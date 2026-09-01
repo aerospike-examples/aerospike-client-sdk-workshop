@@ -7,9 +7,10 @@ Connecting to a cluster involves creating a `ClusterDefinition` which controls e
 ```java
 Cluster cluster = new ClusterDefinition("localhost", 3100)
                 .withNativeCredentials("tim", "myPassword!")
-                .withLogLevel(Level.DEBUG)
                 .connect();
 ```
+
+Logging uses SLF4J. The workshop Spring Boot app binds SLF4J to Logback; see `spring-server/src/main/resources/logback-spring.xml` for named SDK loggers (`tend`, `connection`, `command`, and others). Uncomment a logger there to raise verbosity instead of calling a static `Log` class.
 
 Don’t forget to close the cluster when done, or use a resource try block:
 
